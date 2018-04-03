@@ -50,14 +50,16 @@ typedef std::vector<std::pair<std::string, std::string>> Dictionary;
 
 typedef size_t Address;
 
-struct Readable {
-public:
+class Readable {
+private:
 	int fileOffset;
 	int fileSize;
+	friend class IO;
+public:
 	virtual bool read(std::istream &stream) = 0;
 };
 
-struct Writable {
+class Writable {
 public:
 	virtual bool write(std::ostream &stream) const = 0;
 };
