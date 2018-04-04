@@ -48,7 +48,7 @@ typedef float F32;
 typedef double F64;
 typedef std::vector<std::pair<std::string, std::string>> Dictionary;
 
-typedef size_t Address;
+typedef U64 Address;
 
 class Readable {
 private:
