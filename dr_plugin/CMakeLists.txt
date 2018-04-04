@@ -5,7 +5,6 @@ set (VIZFILE_SRC
         main.cpp
 )
 
-set (DynamoRIO_DIR ~/DynamoRIO/cmake)
 add_definitions(-Wall)
 
 add_library(memtrace SHARED main.cpp)
