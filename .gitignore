@@ -33,3 +33,6 @@
 *.out
 *.app
 
+# CMake build folders
+build
+cmake-build-debug
