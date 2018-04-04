@@ -1,7 +1,7 @@
 
 #include "vizFile/vizFile.hpp"
 
-void make_segment(VizFile &file, Address start, Address size) {
+void make_segment(VizFile &file, Address start, Address size, int accessMult = RAND_MAX) {
 	VizFile::Segment segment;
 	segment.startAddress = (Address)(start);
 	segment.size = size;
