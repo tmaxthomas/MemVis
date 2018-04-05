@@ -7,17 +7,18 @@ void ofApp::setup(){
 
 	ofSetWindowShape(1280, 720);
 
+	float scale;
+
 	ofAppBaseWindow *window = ofGetWindowPtr();
 	ofAppGLFWWindow *glfwWindow = dynamic_cast<ofAppGLFWWindow *>(window);
 	if (glfwWindow != nullptr) {
-		mScale = glfwWindow->getPixelScreenCoordScale();
-		ofSetWindowShape(1280 * mScale, 720 * mScale);
+		scale = glfwWindow->getPixelScreenCoordScale();
+		ofSetWindowShape(1280 * scale, 720 * scale);
 	} else {
-		mScale = 1.0f;
+		scale = 1.0f;
 	}
 
-	mScale *= 4.0f;
-	mHighlightSegment = -1;
+	scale *= 4.0f;
 
 	//Load file
 	mFile = nullptr;
@@ -32,6 +33,8 @@ void ofApp::setup(){
 		ofExit();
 		return;
 	}
+
+	mMemoryBlock.setup(mFile, ofRectangle(100, 100, 800, 800));
 
 //	// we add this listener before setting up so the initial circle resolution is correct
 //	circleResolution.addListener(this, &ofApp::circleResolutionChanged);
@@ -70,147 +73,21 @@ bool ofApp::loadFile(ofFileDialogResult result) {
 		return false;
 	}
 
-	mDisplayedSegments = std::vector<bool>(mFile->segments.size(), true);
-
 	return true;
-}
-
-void ofApp::drawRender() {
-	int w = ofGetViewportWidth() & ~0xF;
-	int h = ofGetViewportHeight() & ~0xF;
-	mRender.setImageType(OF_IMAGE_COLOR);
-	mRender.allocate(w, h, OF_IMAGE_COLOR);
-
-	U32 maxAccesses = 0;
-	for (int j = 0; j < mFile->segments.size(); j ++) {
-		if (!mDisplayedSegments[j])
-			continue;
-		for (int i = 0; i < mFile->segments[j].size; i ++) {
-			VizFile::ByteData &byte = mFile->segments[j].bytes[i];
-			if (byte.numAccesses() > maxAccesses) {
-				maxAccesses = byte.numAccesses();
-			}
-		}
-	}
-
-	ofPixelsRef pixels = mRender.getPixels();
-	pixels.setColor(ofColor::black);
-
-	for (int j = 0; j < mFile->segments.size(); j ++) {
-		if (!mDisplayedSegments[j])
-			continue;
-		for (int i = 0; i < mFile->segments[j].size; i ++) {
-			VizFile::ByteData &byte = mFile->segments[j].bytes[i];
-			float value = (float)byte.numAccesses() / (float)maxAccesses;
-			float hitRatio = (float)byte.numHits / (float)byte.numAccesses();
-			//Convert hitRatio to a hue
-			float hue = 0.0f /* red */ + (hitRatio * 120.0f /* green */);
-			float saturation = 255.0f;
-			float brightness = value * 255.0f;
-
-			ofColor color;
-			color.setHsb(hue, saturation, brightness);
-
-			ofPoint points[mScale * mScale];
-			getPointsForAddress(mFile->segments[j], mFile->segments[j].startAddress + i, points);
-
-			for (int k = 0; k < mScale * mScale; k ++) {
-				if (points[k].y >= h) {
-					break;
-				}
-				pixels.setColor(points[k].x, points[k].y, color);
-			}
-		}
-	}
-	mRender.update();
-}
-
-int ofApp::getSegmentYStart(const VizFile::Segment &segment) const {
-	//Find closest segment before this
-	int closest = -1;
-
-	for (int i = 0; i < mFile->segments.size(); i ++) {
-		if (!mDisplayedSegments[i])
-			continue;
-		const auto &other = mFile->segments[i];
-
-		Address end = other.endAddress();
-		if (end < segment.startAddress && (closest == -1 || end > mFile->segments[closest].endAddress())) {
-			closest = i;
-		}
-	}
-
-	if (closest == -1) {
-		//We're first
-		return 0;
-	}
-
-	int closestEnd = getSegmentYStart(mFile->segments[closest]);
-	int closestHeight = getSegmentHeight(mFile->segments[closest]);
-
-	return closestEnd + closestHeight + 4;
-}
-
-int ofApp::getSegmentHeight(const VizFile::Segment &segment) const {
-	return (segment.size / getPixelWidth()) + 1; //Round up
-}
-
-ofRectangle ofApp::getSegmentBounds(const VizFile::Segment &segment) const {
-	return ofRectangle(
-		0, getSegmentYStart(segment) * mScale, getPixelWidth() * mScale, getSegmentHeight(segment) * mScale
-	);
-}
-
-void ofApp::getPointsForAddress(const VizFile::Segment &segment, Address addr, ofPoint *points) const {
-	int w = getPixelWidth();
-
-	Address rel = addr - segment.startAddress;
-
-	int sx = rel % w;
-	int sy = rel / w;
-	sy += getSegmentYStart(segment);
-
-	int i = 0;
-	for (int x = 0; x < mScale; x ++) {
-		for (int y = 0; y < mScale; y ++) {
-			points[i].x = sx * mScale + x;
-			points[i].y = sy * mScale + y;
-			i ++;
-		}
-	}
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	if (!mRender.isAllocated()) {
-		drawRender();
-	}
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	ofSetColor(255, 255, 255, 255);
-	ofBackground(0, 0, 0);
+	ofBackground(255, 255, 255);
+
+	mMemoryBlock.draw();
+	
 //	ofSetColor(ofColor::white);
 //	ofDrawRectangle(0, 0, mRender.getWidth() + 2, mRender.getHeight() + 2);
-	int rx = 0;
-	int ry = 0;
-	if (ofGetViewportWidth() & 0xF) {
-		rx = 1;
-	}
-	if (ofGetViewportHeight() & 0xF) {
-		ry = 1;
-	}
-	mRender.draw(rx, ry);
-
-	if (mHighlightSegment != -1) {
-		const auto &segment = mFile->segments[mHighlightSegment];
-		ofRectangle bounds = getSegmentBounds(segment);
-
-		ofSetColor(255, 255, 255, 100);
-		ofDrawRectangle(bounds);
-	}
-
 //	if(filled){
 //		ofFill();
 //	}else{
@@ -235,12 +112,10 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 	if(key == '1'){
-		mScale ++;
-		mRender.clear();
+		mMemoryBlock.getParameter().cast<int>()++;
 	}
 	if(key == '2'){
-		mScale --;
-		mRender.clear();
+		mMemoryBlock.getParameter().cast<int>()--;
 	}
 //	else if(key == 's'){
 //		gui.saveToFile("settings.xml");
@@ -260,14 +135,6 @@ void ofApp::keyReleased(int key){
 
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
-	mHighlightSegment = -1;
-	for (int i = 0; i < mFile->segments.size(); i ++) {
-		const auto &segment = mFile->segments[i];
-		ofRectangle bounds = getSegmentBounds(segment);
-		if (bounds.inside(x, y)) {
-			mHighlightSegment = i;
-		}
-	}
 }
 
 //--------------------------------------------------------------
@@ -297,7 +164,7 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-	mRender.clear();
+
 }
 
 //--------------------------------------------------------------

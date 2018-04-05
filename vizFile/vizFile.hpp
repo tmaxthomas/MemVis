@@ -1,4 +1,4 @@
-
+#pragma once
 #include "types.hpp"
 
 class VizFile : public Readable, public Writable {
