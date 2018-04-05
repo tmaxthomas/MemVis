@@ -36,3 +36,6 @@
 # CMake build folders
 build
 cmake-build-debug
+
+# Project output files
+*.vzf

@@ -32,7 +32,8 @@
 #include <string.h> /* for memset */
 #include <stddef.h> /* for offsetof */
 #include <stdint.h>
-#include <fcntl.h> /* Yay, OS dependence! */
+#include <fcntl.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <map>
@@ -76,8 +77,7 @@ static app_pc code_cache;
 static void  *mutex;    /* for multithread support */
 static uint64 num_refs; /* keep a global memory reference count */
 static int tls_index;
-static int fd;
-static int block_size;
+static FILE *fd;
 
 static void event_exit(void);
 static void event_thread_init(void *drcontext);
@@ -104,11 +104,9 @@ static std::map<uintptr_t, uint64_t> read_map, write_map, exec_map;
 DR_EXPORT void
 dr_client_main(client_id_t id, int argc, const char *argv[]) {
     //Before anything else, make sure we have the args we need
-    DR_ASSERT(argc == 3);
-    fd = open(argv[1], O_CREAT, S_IWUSR);
+    DR_ASSERT(argc == 2);
+    fd = fopen(argv[1], "w");
     DR_ASSERT(fd >= 0);
-    block_size = atoi(argv[2]);
-
     
     /* We need 2 reg slots beyond drreg's eflags slots => 3 slots */
     drreg_options_t ops = {sizeof(ops), 3, false};
@@ -151,6 +149,9 @@ dr_client_main(client_id_t id, int argc, const char *argv[]) {
 static void
 event_exit()
 {
+#ifdef DEBUG_MODE
+    dr_printf("EXITING...\n");
+#endif
     code_cache_exit();
 
     if (!drmgr_unregister_tls_field(tls_index) ||
@@ -164,9 +165,40 @@ event_exit()
     drutil_exit();
     drmgr_exit();
 
-    for(auto itr = write_map.begin(); itr != write_map.end(); itr++) {
-        
+    //Write to the output file
+    char buf[16];
+    memset(buf, 0, 16);
+    fwrite(buf, 1, 16, fd);
+
+#ifdef DEBUG_MODE
+    dr_printf("read_map.size(): %ld, write_map.size(): %ld\n", read_map.size(), write_map.size());
+#endif
+
+    for(std::map<uintptr_t, uint64_t>::iterator itr = read_map.begin(); itr != read_map.end(); itr++) {
+        *(uintptr_t *)(buf) = itr->first;
+        *(uint64_t *)(buf + 8) = itr->second;
+        fwrite(buf, 1, 16, fd);
     }
+    
+    memset(buf, 0, 16);
+    fwrite(buf, 1, 16, fd);
+
+    for(std::map<uintptr_t, uint64_t>::iterator itr = write_map.begin(); itr != write_map.end(); itr++) {
+        *(uintptr_t *)(buf) = itr->first;
+        *(uint64_t *)(buf + 8) = itr->second;
+        fwrite(buf, 1, 16, fd);
+    }
+
+    memset(buf, 0, 16);
+    fwrite(buf, 1, 16, fd);
+
+    for(std::map<uintptr_t, uint64_t>::iterator itr = exec_map.begin(); itr != exec_map.end(); itr++) {
+        *(uintptr_t *)(buf) = itr->first;
+        *(uint64_t *)(buf + 8) = itr->second;
+        fwrite(buf, 1, 16, fd);
+    }
+
+    fclose(fd);
 }
 
 static void
@@ -175,25 +207,13 @@ event_thread_init(void *drcontext)
     per_thread_t *data;
 
     /* allocate thread private data */
-    data = dr_thread_alloc(drcontext, sizeof(per_thread_t));
+    data = (per_thread_t *) dr_thread_alloc(drcontext, sizeof(per_thread_t));
     drmgr_set_tls_field(drcontext, tls_index, data);
-    data->buf_base = dr_thread_alloc(drcontext, MEM_BUF_SIZE);
+    data->buf_base = (char *) dr_thread_alloc(drcontext, MEM_BUF_SIZE);
     data->buf_ptr  = data->buf_base;
     /* set buf_end to be negative of address of buffer end for the lea later */
     data->buf_end  = -(ptr_int_t)(data->buf_base + MEM_BUF_SIZE);
     data->num_refs = 0;
-
-    /* We're going to dump our data to a per-thread file.
-     * On Windows we need an absolute path so we place it in
-     * the same directory as our library. We could also pass
-     * in a path as a client argument.
-     */
-    data->log = log_file_open(client_id, drcontext, NULL /* using client lib path */,
-                              "memtrace",
-                              DR_FILE_ALLOW_LARGE);
-    data->logf = log_stream_from_file(data->log);
-    fprintf(data->logf,
-            "Format: <instr address>,<(r)ead/(w)rite>,<data size>,<data address>\n");
 }
 
 
@@ -203,11 +223,10 @@ event_thread_exit(void *drcontext)
     per_thread_t *data;
 
     memtrace(drcontext);
-    data = drmgr_get_tls_field(drcontext, tls_index);
+    data = (per_thread_t *) drmgr_get_tls_field(drcontext, tls_index);
     dr_mutex_lock(mutex);
     num_refs += data->num_refs;
     dr_mutex_unlock(mutex);
-    log_stream_close(data->logf); /* closes fd too */
     dr_thread_free(drcontext, data->buf_base, MEM_BUF_SIZE);
     dr_thread_free(drcontext, data, sizeof(per_thread_t));
 }
@@ -262,21 +281,28 @@ memtrace(void *drcontext)
     int num_refs;
     mem_ref_t *mem_ref;
 
-    data      = drmgr_get_tls_field(drcontext, tls_index);
-    mem_ref   = (mem_ref_t *)data->buf_base;
+    data      = (per_thread_t *) drmgr_get_tls_field(drcontext, tls_index);
+    mem_ref   = (mem_ref_t *) data->buf_base;
     num_refs  = (int)((mem_ref_t *)data->buf_ptr - mem_ref);
 
     //Very clearly not written by the DynamoRIO team
     for (int i = 0; i < num_refs; i++) {
-        uintptr_t mem_block_addr = ((uintptr_t) mem_ref->addr) & ~0xfff,
-                  exec_block_addr = ((uintptr_t) mem_ref->pc) & ~0xfff;
+        uintptr_t mem_block_addr = (uintptr_t) mem_ref->addr,
+                  exec_block_addr = (uintptr_t) mem_ref->pc;
         if(mem_ref->write) {
-            write_map[mem_block_addr] += size;
+            write_map[mem_block_addr] += mem_ref->size;
+#ifdef DEBUG_MODE
+            dr_printf("Recording read; size: %d, addr: %p, map size: %ld\n", mem_ref->size, 
+                            mem_ref->addr, read_map.size());
+#endif
         } else {
-            read_map[base_block_addr] += size;
+            read_map[mem_block_addr] += mem_ref->size;
+#ifdef DEBUG_MODE
+            dr_printf("Recording write; size: %d, addr: %p, map size: %ld\n", mem_ref->size, 
+                            mem_ref->addr, write_map.size());
+#endif
         }
         exec_map[exec_block_addr]++;
-        
         ++mem_ref;
     }
 
@@ -302,7 +328,7 @@ code_cache_init(void)
     byte         *end;
 
     drcontext  = dr_get_current_drcontext();
-    code_cache = dr_nonheap_alloc(page_size,
+    code_cache = (app_pc) dr_nonheap_alloc(page_size,
                                   DR_MEMPROT_READ  |
                                   DR_MEMPROT_WRITE |
                                   DR_MEMPROT_EXEC);
@@ -342,10 +368,7 @@ instrument_mem(void *drcontext, instrlist_t *ilist, instr_t *where,
     opnd_t   ref, opnd1, opnd2;
     reg_id_t reg1, reg2;
     drvector_t allowed;
-    per_thread_t *data;
     app_pc pc;
-
-    data = drmgr_get_tls_field(drcontext, tls_index);
 
     /* Steal two scratch registers.
      * reg2 must be ECX or RCX for jecxz.
