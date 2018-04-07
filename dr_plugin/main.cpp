@@ -3,34 +3,14 @@
  * Copyright (c) 2010 Massachusetts Institute of Technology  All rights reserved.
  * ******************************************************************************/
 
-/* Code Manipulation API Sample:
- * memtrace_x86.c
- *
- * Collects the instruction address, data address, and size of every
- * memory reference and dumps the results to a file.
- * This is an x86-specific implementation of a memory tracing client.
- * For a simpler (and slower) arch-independent version, please see memtrace_simple.c.
- *
- * Illustrates how to create generated code in a local code cache and
- * perform a lean procedure call to that generated code.
- *
- * (1) Fills a buffer and dumps the buffer when it is full.
- * (2) Inlines the buffer filling code to avoid a full context switch.
- * (3) Uses a lean procedure call for clean calls to reduce code cache size.
- *
- * Illustrates the use of drutil_expand_rep_string() to expand string
- * loops to obtain every memory reference and of
- * drutil_opnd_mem_size_in_bytes() to obtain the size of OP_enter
- * memory references.
- *
- * The OUTPUT_TEXT define controls the format of the trace: text or binary.
- * Creating a text trace file makes the tool an order of magnitude (!) slower
- * than creating a binary file; thus, the default is binary.
- */
+/* ******************************************************************************
+ * Above notice copied in compliance with the license under which the code from
+ * which this was modified was released.
+ * *****************************************************************************/
 
 #include <stdio.h>
-#include <string.h> /* for memset */
-#include <stddef.h> /* for offsetof */
+#include <string.h>
+#include <stddef.h> 
 #include <stdint.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -171,10 +151,12 @@ event_exit()
     fwrite(buf, 1, 16, fd);
 
 #ifdef DEBUG_MODE
-    dr_printf("read_map.size(): %ld, write_map.size(): %ld\n", read_map.size(), write_map.size());
+    dr_printf("read_map.size(): %ld, write_map.size(): %ld\n", 
+            read_map.size(), write_map.size());
 #endif
 
-    for(std::map<uintptr_t, uint64_t>::iterator itr = read_map.begin(); itr != read_map.end(); itr++) {
+    for(std::map<uintptr_t, uint64_t>::iterator itr = read_map.begin(); 
+            itr != read_map.end(); itr++) {
         *(uintptr_t *)(buf) = itr->first;
         *(uint64_t *)(buf + 8) = itr->second;
         fwrite(buf, 1, 16, fd);
@@ -183,7 +165,8 @@ event_exit()
     memset(buf, 0, 16);
     fwrite(buf, 1, 16, fd);
 
-    for(std::map<uintptr_t, uint64_t>::iterator itr = write_map.begin(); itr != write_map.end(); itr++) {
+    for(std::map<uintptr_t, uint64_t>::iterator itr = write_map.begin(); 
+            itr != write_map.end(); itr++) {
         *(uintptr_t *)(buf) = itr->first;
         *(uint64_t *)(buf + 8) = itr->second;
         fwrite(buf, 1, 16, fd);
@@ -192,7 +175,8 @@ event_exit()
     memset(buf, 0, 16);
     fwrite(buf, 1, 16, fd);
 
-    for(std::map<uintptr_t, uint64_t>::iterator itr = exec_map.begin(); itr != exec_map.end(); itr++) {
+    for(std::map<uintptr_t, uint64_t>::iterator itr = exec_map.begin(); 
+            itr != exec_map.end(); itr++) {
         *(uintptr_t *)(buf) = itr->first;
         *(uint64_t *)(buf + 8) = itr->second;
         fwrite(buf, 1, 16, fd);
@@ -274,6 +258,13 @@ event_bb_insert(void *drcontext, void *tag, instrlist_t *bb,
     return DR_EMIT_DEFAULT;
 }
 
+static void add_access(std::map<uintptr_t, uint64_t> &map, 
+                       uintptr_t addr, uint64_t count) {
+    for(uint64_t i = 0; i < count; i++) {
+        map[addr + i]++;
+    }
+}
+
 static void
 memtrace(void *drcontext)
 {
@@ -290,16 +281,16 @@ memtrace(void *drcontext)
         uintptr_t mem_block_addr = (uintptr_t) mem_ref->addr,
                   exec_block_addr = (uintptr_t) mem_ref->pc;
         if(mem_ref->write) {
-            write_map[mem_block_addr] += mem_ref->size;
+            add_access(write_map, mem_ref->addr, mem_ref->size);
 #ifdef DEBUG_MODE
-            dr_printf("Recording read; size: %d, addr: %p, map size: %ld\n", mem_ref->size, 
-                            mem_ref->addr, read_map.size());
+            dr_printf("Recording read; size: %d, addr: %p, map size: %ld\n", 
+                    mem_ref->size, mem_ref->addr, read_map.size());
 #endif
         } else {
-            read_map[mem_block_addr] += mem_ref->size;
+            add_access(read_map, mem_ref->addr, mem_ref->size);
 #ifdef DEBUG_MODE
-            dr_printf("Recording write; size: %d, addr: %p, map size: %ld\n", mem_ref->size, 
-                            mem_ref->addr, write_map.size());
+            dr_printf("Recording write; size: %d, addr: %p, map size: %ld\n", 
+                    mem_ref->size, mem_ref->addr, write_map.size());
 #endif
         }
         exec_map[exec_block_addr]++;
