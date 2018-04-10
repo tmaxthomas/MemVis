@@ -93,7 +93,7 @@ dr_client_main(client_id_t id, int argc, const char *argv[]) {
     //Before anything else, make sure we have the args we need
     DR_ASSERT(argc == 2);
     fd = fopen(argv[1], "w");
-    DR_ASSERT(fd >= 0);
+    DR_ASSERT(fd != 0);
     
     /* We need 2 reg slots beyond drreg's eflags slots => 3 slots */
     drreg_options_t ops = {sizeof(ops), 3, false};

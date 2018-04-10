@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(IVizFinal CXX)
 
-add_definitions(-Wall -D DEBUG_MODE)
+add_definitions(-Wall -D DEBUG_MODE -DDR_LOG_DEFINE_COMPATIBILITY)
 
 add_library(projplugin SHARED main.cpp)
 find_package(DynamoRIO)
