@@ -87,6 +87,7 @@ static void instrument_mem(void        *drcontext,
 
 static std::map<uintptr_t, mem_count_t> rw_map;
 static std::map<uintptr_t, uint64_t> exec_map;
+static uint32_t ver = 0;
 
 DR_EXPORT void
 dr_client_main(client_id_t id, int argc, const char *argv[]) {
@@ -154,6 +155,14 @@ event_exit()
 
     //Write to the output file
     char buf[16];
+    uint32_t rw_size = rw_map.size(), exec_size = exec_map.size();
+    memset(buf, 0, 16);
+    strncpy(buf, "vzfh", 16);
+    memcpy(buf + 4, &ver, 4);
+    memcpy(buf + 8, &rw_size, 4);
+    memcpy(buf + 12, &exec_size, 4);
+    fwrite(buf, 1, 16, fd);
+
     memset(buf, 0, 16);
     strncpy(buf, "read-write", 16);
     fwrite(buf, 1, 16, fd);
@@ -168,7 +177,7 @@ event_exit()
         *(mem_count_t *)(buf + 8) = itr->second;
         fwrite(buf, 1, 16, fd);
     }
-
+    
     memset(buf, 0, 16);
     strncpy(buf, "exec", 16);
     fwrite(buf, 1, 16, fd);
