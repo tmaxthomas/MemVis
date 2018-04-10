@@ -51,6 +51,11 @@ typedef struct {
     uint64  num_refs;
 } per_thread_t;
 
+typedef struct {
+    uint32_t reads;
+    uint32_t writes;
+} mem_count_t;
+
 static size_t page_size;
 static client_id_t client_id;
 static app_pc code_cache;
@@ -79,7 +84,8 @@ static void instrument_mem(void        *drcontext,
                            int          pos,
                            bool         write);
 
-static std::map<uintptr_t, uint64_t> read_map, write_map, exec_map;
+static std::map<uintptr_t, mem_count_t> rw_map;
+static std::map<uintptr_t, uint64_t> exec_map;
 
 DR_EXPORT void
 dr_client_main(client_id_t id, int argc, const char *argv[]) {
@@ -148,29 +154,17 @@ event_exit()
     //Write to the output file
     char buf[16];
     memset(buf, 0, 16);
-    strncpy(buf, "read", 16);
+    strncpy(buf, "read-write", 16);
     fwrite(buf, 1, 16, fd);
 
 #ifdef DEBUG_MODE
-    dr_printf("read_map.size(): %ld, write_map.size(): %ld\n", 
-            read_map.size(), write_map.size());
+    dr_printf("rw_map.size(): %ld\n", rw_map.size());
 #endif
 
-    for(std::map<uintptr_t, uint64_t>::iterator itr = read_map.begin(); 
-            itr != read_map.end(); itr++) {
+    for(std::map<uintptr_t, mem_count_t>::iterator itr = rw_map.begin(); 
+            itr != rw_map.end(); itr++) {
         *(uintptr_t *)(buf) = itr->first;
-        *(uint64_t *)(buf + 8) = itr->second;
-        fwrite(buf, 1, 16, fd);
-    }
-    
-    memset(buf, 0, 16);
-    strncpy(buf, "writ", 16);
-    fwrite(buf, 1, 16, fd);
-
-    for(std::map<uintptr_t, uint64_t>::iterator itr = write_map.begin(); 
-            itr != write_map.end(); itr++) {
-        *(uintptr_t *)(buf) = itr->first;
-        *(uint64_t *)(buf + 8) = itr->second;
+        *(mem_count_t *)(buf + 8) = itr->second;
         fwrite(buf, 1, 16, fd);
     }
 
@@ -261,11 +255,16 @@ event_bb_insert(void *drcontext, void *tag, instrlist_t *bb,
     return DR_EMIT_DEFAULT;
 }
 
-static void add_access(std::map<uintptr_t, uint64_t> &map, 
-                       void *addr_, uint64_t count) {
+static void add_access(bool is_write,void *addr_, uint64_t count) {
+
     uintptr_t addr = (uintptr_t) addr_;
+
     for(uint64_t i = 0; i < count; i++) {
-        map[addr + i]++;
+        if(is_write) {
+            rw_map[addr + i].writes++;
+        } else {
+            rw_map[addr + i].reads++;
+        }
     }
 }
 
@@ -284,16 +283,16 @@ memtrace(void *drcontext)
     for (int i = 0; i < num_refs; i++) {
         uintptr_t exec_block_addr = (uintptr_t) mem_ref->pc;
         if(mem_ref->write) {
-            add_access(write_map, mem_ref->addr, mem_ref->size);
+            add_access(true, mem_ref->addr, mem_ref->size);
 #ifdef DEBUG_MODE
             dr_printf("Recording read; size: %d, addr: %p, map size: %ld\n", 
-                    mem_ref->size, mem_ref->addr, read_map.size());
+                    mem_ref->size, mem_ref->addr, rw_map.size());
 #endif
         } else {
-            add_access(read_map, mem_ref->addr, mem_ref->size);
+            add_access(false, mem_ref->addr, mem_ref->size);
 #ifdef DEBUG_MODE
             dr_printf("Recording write; size: %d, addr: %p, map size: %ld\n", 
-                    mem_ref->size, mem_ref->addr, write_map.size());
+                    mem_ref->size, mem_ref->addr, rw_map.size());
 #endif
         }
         exec_map[exec_block_addr]++;
