@@ -39,3 +39,6 @@ cmake-build-debug
 
 # Project output files
 *.vzf
+
+# Vim swap files
+*.swp

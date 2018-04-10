@@ -148,6 +148,7 @@ event_exit()
     //Write to the output file
     char buf[16];
     memset(buf, 0, 16);
+    strncpy(buf, "read", 16);
     fwrite(buf, 1, 16, fd);
 
 #ifdef DEBUG_MODE
@@ -163,6 +164,7 @@ event_exit()
     }
     
     memset(buf, 0, 16);
+    strncpy(buf, "writ", 16);
     fwrite(buf, 1, 16, fd);
 
     for(std::map<uintptr_t, uint64_t>::iterator itr = write_map.begin(); 
@@ -173,6 +175,7 @@ event_exit()
     }
 
     memset(buf, 0, 16);
+    strncpy(buf, "exec", 16);
     fwrite(buf, 1, 16, fd);
 
     for(std::map<uintptr_t, uint64_t>::iterator itr = exec_map.begin(); 
@@ -259,7 +262,8 @@ event_bb_insert(void *drcontext, void *tag, instrlist_t *bb,
 }
 
 static void add_access(std::map<uintptr_t, uint64_t> &map, 
-                       uintptr_t addr, uint64_t count) {
+                       void *addr_, uint64_t count) {
+    uintptr_t addr = (uintptr_t) addr_;
     for(uint64_t i = 0; i < count; i++) {
         map[addr + i]++;
     }
@@ -278,8 +282,7 @@ memtrace(void *drcontext)
 
     //Very clearly not written by the DynamoRIO team
     for (int i = 0; i < num_refs; i++) {
-        uintptr_t mem_block_addr = (uintptr_t) mem_ref->addr,
-                  exec_block_addr = (uintptr_t) mem_ref->pc;
+        uintptr_t exec_block_addr = (uintptr_t) mem_ref->pc;
         if(mem_ref->write) {
             add_access(write_map, mem_ref->addr, mem_ref->size);
 #ifdef DEBUG_MODE
