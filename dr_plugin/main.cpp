@@ -21,6 +21,7 @@
 #include "drmgr.h"
 #include "drreg.h"
 #include "drutil.h"
+#include "dr_tools.h"
 
 /* Each mem_ref_t includes the type of reference (read or write),
  * the address referenced, and the size of the reference.
