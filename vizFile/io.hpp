@@ -151,6 +151,25 @@ public:
 		return read_impl<T, std::is_fundamental<T>::value>::read(stream, value, name);
 	}
 
+    /**
+     * Read a vector from a stream
+     * @param stream The stream from which the data is read
+     * @param value A reference into which the data will be read
+     * @param name A string containing the name of the variable (for debugging)
+     * @return If the operation was successful
+     */
+    template <typename T, int size>
+    static inline bool read(std::istream &stream, T value[size], const std::string &name) {
+        //Read all the objects
+        for (U32 i = 0; i < size; i ++) {
+            //Make sure the read succeeds
+            if (!read(stream, value[i], name + " obj"))
+                return false;
+        }
+
+        return true;
+    }
+
 	/**
 	 * Read a vector from a stream
 	 * @param stream The stream from which the data is read

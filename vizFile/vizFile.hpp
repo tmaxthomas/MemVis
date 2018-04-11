@@ -1,41 +1,33 @@
 #pragma once
 #include "types.hpp"
 
-class VizFile : public Readable, public Writable {
+class VizFile : public Readable {
 public:
-	class ByteData : public Readable, public Writable {
+    class ByteData {
 	public:
-		U32 numHits;
-		U32 numMisses;
+        U64 numReads;
+        U64 numWrites;
+        U64 numExecutes;
 
-		inline U32 numAccesses() const { return numHits + numMisses; }
+        inline U64 numAccesses() const { return numReads + numWrites + numExecutes; }
 
-		ByteData() : numHits(0), numMisses(0) {}
+        ByteData() : numReads(0), numWrites(0), numExecutes(0) {}
 		virtual ~ByteData() {}
 
-		virtual bool read(std::istream &stream);
-		virtual bool write(std::ostream &stream) const;
-	};
-	class Segment : public Readable, public Writable {
-	public:
-		Address startAddress;
-		Address size;
-		std::vector<ByteData> bytes;
-
-		inline Address endAddress() const { return startAddress + size; }
-
-		Segment() : startAddress(0), size(0) {}
-		virtual ~Segment() {}
-
-		virtual bool read(std::istream &stream);
-		virtual bool write(std::ostream &stream) const;
-	};
-
-	std::vector<Segment> segments;
+        virtual bool operator<(const ByteData &other) const {
+            if (numReads != other.numReads)
+                return numReads < other.numReads;
+            if (numWrites != other.numWrites)
+                return numWrites < other.numWrites;
+            if (numExecutes != other.numExecutes)
+                return numExecutes < other.numExecutes;
+            return false;
+        }
+    };
+    std::map<Address, ByteData> bytes;
 
 	VizFile() {}
 	virtual ~VizFile() {}
 
 	virtual bool read(std::istream &stream);
-	virtual bool write(std::ostream &stream) const;
 };
