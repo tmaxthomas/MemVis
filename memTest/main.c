@@ -1,16 +1,11 @@
-
-#include <vector>
-#include <string.h>
 #include <stdlib.h>
-#include <algorithm>
 
 struct Bits {
-	char ch;
 	int width;
 	int height;
 	const char *layout;
 };
-static Bits chars[256] = {
+static struct Bits chars[256] = {
 	{}, // 0
 	{}, // 1
 	{}, // 2
@@ -43,9 +38,9 @@ static Bits chars[256] = {
 	{}, // 29
 	{}, // 30
 	{}, // 31
-	{' ', 2, 1,
+	{2, 1,
 		"  "},
-	{'!', 1, 5,
+	{1, 5,
 		"."
 		"."
 		"."
@@ -61,7 +56,7 @@ static Bits chars[256] = {
 	{}, // 41
 	{}, // 42
 	{}, // 43
-	{',', 2, 2,
+	{2, 2,
 		" ."
 		". "},
 	{}, // 45
@@ -114,99 +109,162 @@ static Bits chars[256] = {
 	{}, // 92
 	{}, // 93
 	{}, // 94
-	{'_', 4, 1,
+	{4, 1,
 		"...."},
 	{}, // 96
-	{'a', 4, 5,
+	{4, 5,
 		" .. "
 		"   ."
 		" ..."
 		".  ."
 		" ..."},
-	{},
-	{'c', 4, 4,
+	{4, 5,
+		".   "
+		".   "
+		"... "
+		".  ."
+		"... "},
+	{4, 4,
 		" ..."
 		".   "
 		".   "
 		" ..."},
-	{'d', 4, 5,
+	{4, 5,
 		"   ."
 		"   ."
 		" ..."
 		".  ."
 		" ..."},
-	{'e', 4, 5,
+	{4, 5,
 		" .. "
 		".  ."
 		"...."
 		".   "
 		" ..."},
-	{'f', 4, 5,
+	{4, 5,
 		"  .."
 		" .  "
 		"...."
 		" .  "
 		" .  "},
-	{'g', 4, 5,
+	{4, 5,
 		" .. "
 		".  ."
 		" ..."
 		"   ."
 		" .. "},
-	{},
-	{'i', 2, 5,
+	{4, 5,
+		".   "
+		".   "
+		"...."
+		".  ."
+		".  ."},
+	{2, 5,
 		". "
 		"  "
 		". "
 		". "
 		" ."},
-	{},
-	{},
-	{'l', 2, 5,
+	{3, 5,
+		"  ."
+		"   "
+		"  ."
+		"  ."
+		".. "},
+	{3, 5,
+		".  "
+		"..."
+		". ."
+		".. "
+		". ."},
+	{2, 5,
 		". "
 		". "
 		". "
 		". "
 		" ."},
-	{},
-	{'n', 4, 4,
+	{5, 4,
+		".... "
+		". . ."
+		". . ."
+		". . ."},
+	{4, 4,
 		"... "
 		".  ."
 		".  ."
 		".  ."},
-	{'o', 4, 4,
+	{4, 4,
 		" .. "
 		".  ."
 		".  ."
 		" .. "},
-	{},
-	{},
-	{'r', 4, 4,
+	{3, 5,
+		"..."
+		". ."
+		"..."
+		".  "
+		".  "},
+	{3, 5,
+		"..."
+		". ."
+		"..."
+		"  ."
+		"  ."},
+	{4, 4,
 		". .."
 		"..  "
 		".   "
 		".   "},
-	{},
-	{'t', 4, 5,
+	{3, 5,
+		"..."
+		".  "
+		"..."
+		"  ."
+		"..."},
+	{4, 5,
 		" .  "
 		"...."
 		" .  "
 		" .  "
 		"  .."},
-	{}, // 117
-	{}, // 118
-	{}, // 119
-	{}, // 120
-	{}, // 121
-	{}, // 122
-	{'{', 4, 5,
+	{4, 4,
+		".  ."
+		".  ."
+		".  ."
+		"... "},
+	{5, 4,
+		".   ."
+		".   ."
+		" . . "
+		"  .  "},
+	{5, 4,
+		".   ."
+		". . ."
+		". . ."
+		" . . "},
+	{3, 3,
+		". ."
+		" . "
+		". ."},
+	{5, 4,
+		".  ."
+		".  ."
+		" ..."
+		"   ."
+		"... "},
+	{4, 4,
+		"...."
+		"  . "
+		" .  "
+		"...."},
+	{4, 5,
 		"  .."
 		" .  "
 		"..  "
 		" .  "
 		"  .."},
 	{}, // 124
-	{'}', 4, 5,
+	{4, 5,
 		"..  "
 		"  . "
 		"  .."
@@ -218,25 +276,25 @@ static Bits chars[256] = {
 };
 
 int main(int argc, const char **argv) {
-	static const char *str = "flag{i_need_a_doctor}";
-	static int length = 21;
+	static const char *str = "flag{youll_probably_remember_this_one}";
+	static int length = sizeof(str) / sizeof(const char);
 
 	//Find length of str
 	int width = 0;
 	int height = 0;
 	for (int i = 0; i < length; i ++) {
-		Bits *bits = &(chars[(int)str[i]]);
+		struct Bits *bits = &(chars[(int)str[i]]);
 		width += bits->width + 1;
 		if (bits->height > height)
 			height = bits->height;
 	}
 	width = 2048;
 	//Build memory accesses for str
-	unsigned char *memories = new unsigned char[width * height]();
+	unsigned char *memories = malloc(sizeof(unsigned char) * width * height);
 
 	int lead = 0;
 	for (int i = 0; i < length; i ++) {
-		Bits *bits = &(chars[(int)str[i]]);
+		struct Bits *bits = &(chars[(int)str[i]]);
 
 		int sy = height - bits->height;
 		int sx = lead;
@@ -420,7 +478,7 @@ int main(int argc, const char **argv) {
 		lead += bits->width + 1;
 	}
 
-	delete [] memories;
+	free(memories);
 
 	return EXIT_SUCCESS;
 }
