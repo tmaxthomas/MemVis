@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "vizFile/vizFile.hpp"
+#include <QGraphicsScene>
 
 namespace Ui {
 class MainWindow;
@@ -18,10 +19,13 @@ public:
 
 private slots:
     void on_loadFileButton_clicked();
+	void updateImage(QImage image);
 
 private:
     Ui::MainWindow *ui;
     VizFile mFile;
+	QImage memImage;
+	QGraphicsScene *scene;
 };
 
 #endif // MAINWINDOW_H

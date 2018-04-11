@@ -24,7 +24,23 @@ public:
             return false;
         }
     };
-    std::map<Address, ByteData> bytes;
+
+	class Segment {
+	public:
+		Address startAddress;
+		Address size;
+		std::vector<ByteData> bytes;
+
+		inline Address endAddress() const { return startAddress + size; }
+
+		void addByte(Address address, const ByteData &byte);
+
+		Segment() : startAddress(0), size(0) {}
+		virtual ~Segment() {}
+	};
+
+	std::vector<Segment> segments;
+	std::map<Address, ByteData> bytes;
 
 	VizFile() {}
 	virtual ~VizFile() {}

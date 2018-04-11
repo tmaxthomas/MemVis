@@ -38,6 +38,8 @@ set (VIZRENDERQT_SRC
 	vizRenderQt/main.cpp
 	vizRenderQt/mainwindow.cpp
 	vizRenderQt/mainwindow.h
+	vizRenderQt/memDrawing.hpp
+	vizRenderQt/memDrawing.cpp
 	vizRenderQt/ui_mainwindow.h
 )
 

@@ -49,5 +49,41 @@ bool VizFile::read(std::istream &stream) {
          }
     }
 
+	//Generate segments
+	Address epsilon = 0x10000;
+
+	Segment *current = NULL;
+	Address last = 0x0;
+	for (const auto &pair : bytes) {
+		Address next = pair.first;
+		if (next - last > epsilon) {
+			//New segment
+			current = NULL;
+		}
+		if (current == NULL) {
+			segments.push_back(Segment());
+			current = &(segments.back());
+			current->startAddress = next - (next % epsilon);
+			current->size = 0;
+		}
+
+		last = next;
+
+		current->addByte(next, pair.second);
+	}
+
+
 	return true;
+}
+
+void VizFile::Segment::addByte(Address address, const ByteData &byte) {
+	//Expand to fill for this address
+	assert(address >= startAddress);
+	assert(address >= startAddress + size);
+
+	int offset = address - startAddress;
+	bytes.resize(offset + 1);
+	bytes[offset] = byte;
+
+	size = offset;
 }

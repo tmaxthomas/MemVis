@@ -42,3 +42,7 @@ cmake-build-debug
 
 # Vim swap files
 *.swp
+
+*.pro.user*
+*/moc_*
+Makefile
