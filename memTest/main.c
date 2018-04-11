@@ -277,7 +277,7 @@ static struct Bits chars[256] = {
 
 int main(int argc, const char **argv) {
 	static const char *str = "flag{youll_probably_remember_this_one}";
-	static int length = sizeof(str) / sizeof(const char);
+	static int length = 38;
 
 	//Find length of str
 	int width = 0;
