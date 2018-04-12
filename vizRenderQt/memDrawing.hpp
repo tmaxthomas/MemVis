@@ -11,6 +11,7 @@ class MemDrawing : public QObject {
 	QSize mSize;
 	int mScale;
 	std::vector<bool> mDisplayedSegments;
+	mutable std::vector<int> mSegmentLocations; 
 
 public:
 	MemDrawing(VizFile *file, int width) : mFile(file), mSize(width, 0) {}
@@ -23,10 +24,10 @@ signals:
 	void cleanup();
 
 private:
-	int getSegmentYStart(const VizFile::Segment &segment) const;
-	int getSegmentHeight(const VizFile::Segment &segment) const;
-	QRect getSegmentBounds(const VizFile::Segment &segment) const;
-	void getPointsForAddress(const VizFile::Segment &segment, Address addr, QPoint *points) const;
+	int getSegmentYStart(int segmentIndex) const;
+	int getSegmentHeight(int segmentIndex) const;
+	QRect getSegmentBounds(int segmentIndex) const;
+	void getPointsForAddress(int segmentIndex, Address addr, QPoint *points) const;
 
 	inline int getPixelWidth() const { return mSize.width() / mScale; }
 	inline int getPixelHeight() const { return mSize.height() / mScale; }

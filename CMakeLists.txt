@@ -25,7 +25,7 @@ add_executable(VizTestGen ${VIZTESTGEN_SRC})
 target_link_libraries(VizTestGen VizFile)
 
 set (MEMTEST_SRC
-        memTest/main.cpp
+        memTest/main.c
 )
 
 add_executable(MemTest ${MEMTEST_SRC})

@@ -3,10 +3,11 @@
 
 void MemDrawing::draw() {
 	mDisplayedSegments = std::vector<bool>(mFile->segments.size(), true);
+	mSegmentLocations = std::vector<int>(mFile->segments.size(), -1);
 	mScale = 1;
 
 	int w = (U32)mSize.width() & ~0xF;
-	int h = getSegmentYStart(mFile->segments.back()) + getSegmentHeight(mFile->segments.back()) + 1;
+	int h = getSegmentYStart(mFile->segments.size() - 1) + getSegmentHeight(mFile->segments.size() - 1) + 1;
 	if (h & 0xF) h += 0x10 - (h & 0xF);
 	mSize.setHeight(h);
 
@@ -33,7 +34,7 @@ void MemDrawing::draw() {
 			if (byte.numAccesses() == 0) continue;
 			float value = (float)byte.numAccesses() / (float)maxAccesses;
 			value = sqrtf(sqrtf(value));
-			float hitRatio = 1.0f; //(float)byte.numHits / (float)byte.numAccesses();
+			float hitRatio = (float)byte.numReads / (float)byte.numAccesses();
 			//Convert hitRatio to a hue
 			float hue = 0.0f /* red */ + (hitRatio * 120.0f /* green */);
 			float saturation = 255.0f;
@@ -43,7 +44,7 @@ void MemDrawing::draw() {
 			color.setHsv(hue, saturation, brightness);
 
 			QPoint points[mScale * mScale];
-			getPointsForAddress(mFile->segments[j], mFile->segments[j].startAddress + i, points);
+			getPointsForAddress(j, mFile->segments[j].startAddress + i, points);
 
 			for (int k = 0; k < mScale * mScale; k ++) {
 				if (points[k].y() >= h) {
@@ -62,9 +63,11 @@ done:
 	emit cleanup();
 }
 
-int MemDrawing::getSegmentYStart(const VizFile::Segment &segment) const {
+int MemDrawing::getSegmentYStart(int segmentIndex) const {
 	//Find closest segment before this
 	int closest = -1;
+
+	const VizFile::Segment &segment = mFile->segments[segmentIndex];
 
 	for (int i = 0; i < mFile->segments.size(); i ++) {
 		if (!mDisplayedSegments[i])
@@ -82,30 +85,39 @@ int MemDrawing::getSegmentYStart(const VizFile::Segment &segment) const {
 		return 0;
 	}
 
-	int closestEnd = getSegmentYStart(mFile->segments[closest]);
-	int closestHeight = getSegmentHeight(mFile->segments[closest]);
+	int closestEnd;
+	if (mSegmentLocations[closest] == -1) {
+		closestEnd = getSegmentYStart(closest);
+	} else {
+		closestEnd = mSegmentLocations[closest];
+	}
 
-	return closestEnd + closestHeight + 4;
+	int closestHeight = getSegmentHeight(closest);
+
+	int y = closestEnd + closestHeight + 4;
+	mSegmentLocations[segmentIndex] = y;
+
+	return y;
 }
 
-int MemDrawing::getSegmentHeight(const VizFile::Segment &segment) const {
-	return (segment.size / getPixelWidth()) + 1; //Round up
+int MemDrawing::getSegmentHeight(int segmentIndex) const {
+	return (mFile->segments[segmentIndex].size / getPixelWidth()) + 1; //Round up
 }
 
-QRect MemDrawing::getSegmentBounds(const VizFile::Segment &segment) const {
+QRect MemDrawing::getSegmentBounds(int segmentIndex) const {
 	return QRect(
-		0, getSegmentYStart(segment) * mScale, getPixelWidth() * mScale, getSegmentHeight(segment) * mScale
+		0, getSegmentYStart(segmentIndex) * mScale, getPixelWidth() * mScale, getSegmentHeight(segmentIndex) * mScale
 	);
 }
 
-void MemDrawing::getPointsForAddress(const VizFile::Segment &segment, Address addr, QPoint *points) const {
+void MemDrawing::getPointsForAddress(int segmentIndex, Address addr, QPoint *points) const {
 	int w = getPixelWidth();
 
-	Address rel = addr - segment.startAddress;
+	Address rel = addr - mFile->segments[segmentIndex].startAddress;
 
 	int sx = rel % w;
 	int sy = rel / w;
-	sy += getSegmentYStart(segment);
+	sy += getSegmentYStart(segmentIndex);
 
 	int i = 0;
 	for (int x = 0; x < mScale; x ++) {

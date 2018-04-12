@@ -37,4 +37,4 @@ HEADERS += \
 FORMS += \
         mainwindow.ui
 
-INCLUDEPATH += ../vizFile
+INCLUDEPATH += ../
