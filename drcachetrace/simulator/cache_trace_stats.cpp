@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "cache_trace_stats.h"
 
 cache_trace_stats_t::cache_trace_stats_t(const std::string &miss_file, bool warmup_enabled) : 
@@ -8,42 +9,62 @@ cache_trace_stats_t::cache_trace_stats_t(const std::string &miss_file, bool warm
 }
 
 void cache_trace_stats_t::access(const memref_t &memref, bool hit) {
-    if(hit) {
-        for(size_t i = 0; i < memref.data.size; i++) {    
-            cache_map[memref.data.size + i].hits++;
-        }
-    } else {
-        for(size_t i = 0; i < memref.data.size; i++) {
-            cache_map[memref.data.addr + i].misses++;
-        }
+
+// Not quite sure yet how to turn this on
+#ifdef DEBUG_MODE
+    if(type_is_instr(memref.data.type)) {
+        printf("Recording exec; size: %u; addr: 0x%lx; map size: %lu\n",
+                        memref.instr.size, memref.instr.addr, cache_map.size());
+    } else if(memref.data.type == TRACE_TYPE_READ ||
+              type_is_prefetch(memref.data.type)) { // Just pretend prefetches are reads
+        printf("Recording read; size: %u; addr: 0x%lx; map size: %lu\n",
+                        memref.data.size, memref.data.addr, cache_map.size());
+    } else if(memref.data.type == TRACE_TYPE_WRITE) {
+        printf("Recording exec; size: %u; addr: 0x%lx; map size: %lu\n",
+                        memref.data.size, memref.data.addr, cache_map.size());
     }
+#endif
+
+    for(size_t i = 0; i < memref.data.size; i++) {    
+        cts_t *entry = &(cache_map[memref.data.size + i]);
+
+        // First, record the access
+        if(type_is_instr(memref.data.type)) {
+            entry->execs++;
+        } else if(memref.data.type == TRACE_TYPE_READ ||
+                  type_is_prefetch(memref.data.type)) { // Just pretend prefetches are reads
+            entry->reads++;
+        } else if(memref.data.type == TRACE_TYPE_WRITE) {
+            entry->writes++;
+        } // No else block; anything else is getting thrown out
+        
+        //Then, record the cache access stats
+        if(hit) {
+            entry->hits++;
+        } else {
+            entry->misses++;
+        }
+    } 
 }
 
 void cache_trace_stats_t::child_access(const memref_t &memref, bool hit) {
-    if(hit) {
-        for(size_t i = 0; i < memref.data.size; i++) {    
-            cache_map[memref.data.size + i].hits++;
-        }
-    }
-    // Don't need to handle the miss case, apparently
+    //Just recycle the access code. What could possibly go wrong?
+    access(memref, hit);    
 }
 
-// "print" the stats. Don't, actually. This is meant to be piped
-// to a file.
-//
-// Actually, never run this by itself. It's a bad idea.
 void cache_trace_stats_t::print_stats(std::string prefix) {
-    char buf[16];
-    memset(buf, 0, 16);
-    strncpy(buf, prefix.c_str(), 16);
-    fwrite(buf, 1, 16, fd);
+    char buf[24];
+    memset(buf, 0, 24);
+    strncpy(buf, prefix.c_str(), 24);
+    fwrite(buf, 1, 24, fd);
 
     for(auto itr = cache_map.begin(); itr != cache_map.end(); itr++) {
-        memset(buf, 0, 16);
+        memset(buf, 0, 24);
         *(size_t *) buf = itr->first;
-        *(uint32_t *) (buf + 8) = itr->second.hits;
-        *(uint32_t *) (buf + 12) = itr->second.misses;
-        fwrite(buf, 1, 16, fd);
+        *(uint64_t *) (buf + 8) = itr->second.execs;
+        *(uint32_t *) (buf + 16) = itr->second.hits;
+        *(uint32_t *) (buf + 20) = itr->second.misses;
+        fwrite(buf, 1, 24, fd);
     }
 
     fclose(fd);

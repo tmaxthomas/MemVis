@@ -331,8 +331,8 @@ bool
 cache_simulator_t::print_results()
 {
     if (thread_ever_counts[0] > 0) {
-        icaches[0]->get_stats()->print_stats("read-write-cache");
-        dcaches[0]->get_stats()->print_stats("exec-cache");
+        icaches[0]->get_stats()->print_stats("read-write");
+        dcaches[0]->get_stats()->print_stats("exec");
     }
     return true;
 }
