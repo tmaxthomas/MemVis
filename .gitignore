@@ -36,7 +36,7 @@
 # CMake build folders & other shit
 build
 cmake-build-debug
-CMakeCache
+CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
 

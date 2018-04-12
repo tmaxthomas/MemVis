@@ -4,20 +4,26 @@
 
 cache_trace_stats_t::cache_trace_stats_t(const std::string &miss_file, bool warmup_enabled) : 
         caching_device_stats_t(miss_file, warmup_enabled) {
-    fd = fopen("out.vzf", "a");        
+    fd = fopen("/tmp/tmp.vzf", "a");        
 }
 
 void cache_trace_stats_t::access(const memref_t &memref, bool hit) {
     if(hit) {
-        cache_map[memref.data.addr].hits++;
+        for(size_t i = 0; i < memref.data.size; i++) {    
+            cache_map[memref.data.size + i].hits++;
+        }
     } else {
-        cache_map[memref.data.addr].misses++;
+        for(size_t i = 0; i < memref.data.size; i++) {
+            cache_map[memref.data.addr + i].misses++;
+        }
     }
 }
 
 void cache_trace_stats_t::child_access(const memref_t &memref, bool hit) {
     if(hit) {
-        cache_map[memref.data.addr].hits++;
+        for(size_t i = 0; i < memref.data.size; i++) {    
+            cache_map[memref.data.size + i].hits++;
+        }
     }
     // Don't need to handle the miss case, apparently
 }
