@@ -9,6 +9,12 @@ public:
         U64 numWrites;
         U64 numExecutes;
 
+		U64 numRWHits;
+		U64 numRWMisses;
+
+		U64 numExecHits;
+		U64 numExecMisses;
+
         inline U64 numAccesses() const { return numReads + numWrites + numExecutes; }
 
         ByteData() : numReads(0), numWrites(0), numExecutes(0) {}
@@ -46,4 +52,8 @@ public:
 	virtual ~VizFile() {}
 
 	virtual bool read(std::istream &stream);
+	bool readRWAccessSection(std::istream &stream, U32 count);
+	bool readRWCacheSection(std::istream &stream, U32 count);
+	bool readExecAccessSection(std::istream &stream, U32 count);
+	bool readExecCacheSection(std::istream &stream, U32 count);
 };
