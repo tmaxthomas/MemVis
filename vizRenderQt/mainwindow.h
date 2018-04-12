@@ -17,9 +17,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+	void scaleImage(float scale);
+
 private slots:
     void on_loadFileButton_clicked();
-	void updateImage(QImage image);
+    void on_horizontalSlider_sliderReleased();
+
+    void updateImage(QImage image);
 
 private:
     Ui::MainWindow *ui;

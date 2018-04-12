@@ -50,7 +50,7 @@ bool VizFile::read(std::istream &stream) {
     }
 
 	//Generate segments
-	Address epsilon = 0x10000;
+	Address epsilon = 0x1000;
 
 	Segment *current = NULL;
 	Address last = 0x0;
@@ -71,7 +71,6 @@ bool VizFile::read(std::istream &stream) {
 
 		current->addByte(next, pair.second);
 	}
-
 
 	return true;
 }
