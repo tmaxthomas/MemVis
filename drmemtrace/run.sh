@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 if [ $# -ne 2 ]; then
     echo "ERROR\n"
