@@ -10,7 +10,7 @@ DIR=$(pwd)
 
 cd /usr/local/DynamoRIO/bin64
 
-drrun -c ${DIR}/libprojplugin.so /tmp/tmp.vzf -- "$1"
-drrun -t drcachetrace -- "$1" 
+drrun -c ${DIR}/libprojplugin.so /tmp/tmp.vzf -- "${DIR}/$1"
+drrun -t drcachetrace -- "${DIR}/$1" 
 
 mv /tmp/tmp.vzf ${DIR}/$2
