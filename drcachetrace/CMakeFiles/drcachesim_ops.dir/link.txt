@@ -1,4 +1,0 @@
-/usr/bin/c++         -Wl,--hash-style=both  CMakeFiles/drcachesim_ops.dir/optionlist.cpp.o CMakeFiles/drcachesim_ops.dir/common/options.cpp.o  -o ../bin64/drcachesim_ops -rdynamic 
-/usr/bin/objcopy --only-keep-debug ../bin64/drcachesim_ops ../bin64/drcachesim_ops.debug
-/usr/bin/objcopy --add-gnu-debuglink=../bin64/drcachesim_ops.debug ../bin64/drcachesim_ops
-/usr/bin/strip -g -x ../bin64/drcachesim_ops

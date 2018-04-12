@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../lib64/release/libdrmemtrace_static.a  CMakeFiles/drmemtrace_static.dir/tracer/tracer.cpp.o CMakeFiles/drmemtrace_static.dir/tracer/instru.cpp.o CMakeFiles/drmemtrace_static.dir/tracer/instru_offline.cpp.o CMakeFiles/drmemtrace_static.dir/tracer/instru_online.cpp.o CMakeFiles/drmemtrace_static.dir/tracer/physaddr.cpp.o CMakeFiles/drmemtrace_static.dir/common/named_pipe_unix.cpp.o CMakeFiles/drmemtrace_static.dir/common/options.cpp.o CMakeFiles/drmemtrace_static.dir/common/trace_entry.cpp.o
-/usr/bin/ranlib ../lib64/release/libdrmemtrace_static.a

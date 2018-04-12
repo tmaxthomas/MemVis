@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../lib64/release/libdrmemtrace_raw2trace.a  CMakeFiles/drmemtrace_raw2trace.dir/tracer/raw2trace.cpp.o CMakeFiles/drmemtrace_raw2trace.dir/tracer/raw2trace_directory.cpp.o
-/usr/bin/ranlib ../lib64/release/libdrmemtrace_raw2trace.a

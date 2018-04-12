@@ -33,9 +33,12 @@
 *.out
 *.app
 
-# CMake build folders
+# CMake build folders & other shit
 build
 cmake-build-debug
+CMakeCache
+CMakeFiles
+cmake_install.cmake
 
 # Project output files
 *.vzf
