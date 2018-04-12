@@ -32,6 +32,9 @@ cmake_minimum_required(VERSION 2.6)
 
 include(../../make/policies.cmake NO_POLICY_SCOPE)
 
+# Comment this out at some point
+add_definitions(-DDEBUG_MODE)
+
 if (WIN32)
   set(os_name "win")
   # Our non-client files assume this is set, yet don't include headers that set it.

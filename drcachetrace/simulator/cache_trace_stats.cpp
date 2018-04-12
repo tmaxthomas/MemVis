@@ -14,23 +14,22 @@ cache_trace_stats_t::cache_trace_stats_t(const std::string &miss_file, bool warm
 
 void cache_trace_stats_t::access(const memref_t &memref, bool hit) {
 
-// Not quite sure yet how to turn this on
 #ifdef DEBUG_MODE
     if(type_is_instr(memref.data.type)) {
-        printf("Recording exec; size: %u; addr: 0x%lx; map size: %lu\n",
+        printf("Recording exec; size: %lu; addr: 0x%lx; map size: %lu\n",
                         memref.instr.size, memref.instr.addr, cache_map.size());
     } else if(memref.data.type == TRACE_TYPE_READ ||
               type_is_prefetch(memref.data.type)) { // Just pretend prefetches are reads
-        printf("Recording read; size: %u; addr: 0x%lx; map size: %lu\n",
+        printf("Recording read; size: %lu; addr: 0x%lx; map size: %lu\n",
                         memref.data.size, memref.data.addr, cache_map.size());
     } else if(memref.data.type == TRACE_TYPE_WRITE) {
-        printf("Recording exec; size: %u; addr: 0x%lx; map size: %lu\n",
+        printf("Recording exec; size: %lu; addr: 0x%lx; map size: %lu\n",
                         memref.data.size, memref.data.addr, cache_map.size());
     }
 #endif
 
     for(size_t i = 0; i < memref.data.size; i++) {    
-        cts_t *entry = &(cache_map[memref.data.size + i]);
+        cts_t *entry = &(cache_map[memref.data.addr + i]);
 
         // First, record the access
         if(type_is_instr(memref.data.type)) {
