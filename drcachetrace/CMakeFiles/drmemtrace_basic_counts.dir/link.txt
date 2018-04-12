@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../lib64/release/libdrmemtrace_basic_counts.a  CMakeFiles/drmemtrace_basic_counts.dir/tools/basic_counts.cpp.o
+/usr/bin/ranlib ../lib64/release/libdrmemtrace_basic_counts.a

@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../lib64/release/libdrmemtrace_reuse_distance.a  CMakeFiles/drmemtrace_reuse_distance.dir/tools/reuse_distance.cpp.o
+/usr/bin/ranlib ../lib64/release/libdrmemtrace_reuse_distance.a

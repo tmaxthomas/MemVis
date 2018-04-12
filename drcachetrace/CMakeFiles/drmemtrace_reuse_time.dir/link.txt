@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../lib64/release/libdrmemtrace_reuse_time.a  CMakeFiles/drmemtrace_reuse_time.dir/tools/reuse_time.cpp.o
+/usr/bin/ranlib ../lib64/release/libdrmemtrace_reuse_time.a

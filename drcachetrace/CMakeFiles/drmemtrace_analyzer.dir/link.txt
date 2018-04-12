@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../lib64/release/libdrmemtrace_analyzer.a  CMakeFiles/drmemtrace_analyzer.dir/analyzer.cpp.o CMakeFiles/drmemtrace_analyzer.dir/common/trace_entry.cpp.o CMakeFiles/drmemtrace_analyzer.dir/reader/reader.cpp.o CMakeFiles/drmemtrace_analyzer.dir/reader/file_reader.cpp.o CMakeFiles/drmemtrace_analyzer.dir/reader/compressed_file_reader.cpp.o
+/usr/bin/ranlib ../lib64/release/libdrmemtrace_analyzer.a

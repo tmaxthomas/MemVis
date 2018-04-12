@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../lib64/release/libdrmemtrace_histogram.a  CMakeFiles/drmemtrace_histogram.dir/tools/histogram.cpp.o
+/usr/bin/ranlib ../lib64/release/libdrmemtrace_histogram.a

@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/max/Documents/vis/dynamorio-master/clients/drcachesim/common/options.cpp
+string
+-
+droption.h
+/home/max/Documents/vis/dynamorio-master/clients/drcachesim/common/droption.h
+options.h
+/home/max/Documents/vis/dynamorio-master/clients/drcachesim/common/options.h
+
+/home/max/Documents/vis/dynamorio-master/clients/drcachesim/common/options.h
+string
+-
+droption.h
+/home/max/Documents/vis/dynamorio-master/clients/drcachesim/common/droption.h
+
+/home/max/Documents/vis/dynamorio-master/clients/drcachesim/optionlist.cpp
+iostream
+-
+common/options.h
+/home/max/Documents/vis/dynamorio-master/clients/drcachesim/common/options.h
+
+ext/include/droption.h
+string
+-
+vector
+-
+string.h
+-
+stdlib.h
+-
+sstream
+-
+iomanip
+-
+stdint.h
+-
+

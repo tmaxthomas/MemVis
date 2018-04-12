@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../lib64/release/libdrmemtrace_opcode_mix.a  CMakeFiles/drmemtrace_opcode_mix.dir/tools/opcode_mix.cpp.o
+/usr/bin/ranlib ../lib64/release/libdrmemtrace_opcode_mix.a
