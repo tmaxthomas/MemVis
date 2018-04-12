@@ -49,3 +49,4 @@ cmake_install.cmake
 *.pro.user*
 */moc_*
 Makefile
+repo_fix.sh
