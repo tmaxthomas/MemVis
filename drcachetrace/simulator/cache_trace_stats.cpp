@@ -56,19 +56,21 @@ void cache_trace_stats_t::child_access(const memref_t &memref, bool hit) {
 }
 
 void cache_trace_stats_t::print_stats(std::string prefix) {
-    char buf[24];
-    memset(buf, 0, 24);
+    char buf[32];
+    memset(buf, 0, 32);
     strncpy(buf, prefix.c_str(), 24);
-    sprintf(buf + 16, "%lu", cache_map.size());
+    *(uint64_t *) (buf + 16) = cache_map.size();
     fwrite(buf, 1, 24, fd);
 
     for(auto itr = cache_map.begin(); itr != cache_map.end(); itr++) {
-        memset(buf, 0, 24);
+        memset(buf, 0, 32);
         *(size_t *) buf = itr->first;
-        *(uint64_t *) (buf + 8) = itr->second.execs;
-        *(uint32_t *) (buf + 16) = itr->second.hits;
-        *(uint32_t *) (buf + 20) = itr->second.misses;
-        fwrite(buf, 1, 24, fd);
+        *(uint32_t *) (buf + 8) = itr->second.reads;
+        *(uint32_t *) (buf + 12) = itr->second.writes;
+        *(uint64_t *) (buf + 16) = itr->second.execs;
+        *(uint32_t *) (buf + 24) = itr->second.hits;
+        *(uint32_t *) (buf + 28) = itr->second.misses;
+        fwrite(buf, 1, 32, fd);
     }
 
     fclose(fd);

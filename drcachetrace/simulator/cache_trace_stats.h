@@ -20,15 +20,9 @@ public:
     virtual bool operator!() override { return !success; }
 protected:
     struct cts_t { 
-        // You know, I never thought I would need to use a union.
-        // How wrong I was...
-        union {
-            struct {
-                uint32_t reads;
-                uint32_t writes;
-            };
-            uint64_t execs;
-        };
+        uint32_t reads;
+        int32_t writes;
+        uint64_t execs;
         uint32_t hits; 
         uint32_t misses; 
     };
