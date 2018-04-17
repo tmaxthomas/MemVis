@@ -4,11 +4,18 @@
 #include <QMessageBox>
 #include <QThread>
 #include <QScreen>
+#include <QtGui>
+#include <QtWidgets>
+#include <QWizard>
 #include "memDrawing.hpp"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
 	ui->setupUi(this);
 	scene = nullptr;
+	drawer = nullptr;
+
+	ui->comboBox->setCurrentIndex(MemDrawing::DrawSettings::ReadsVsWrites);
+	ui->comboBox_2->setCurrentIndex(MemDrawing::DrawSettings::Accesses);
 }
 
 MainWindow::~MainWindow() {
@@ -33,17 +40,25 @@ void MainWindow::on_loadFileButton_clicked() {
 
 	setGeometry(0, 0, imgWidth + 40, 640);
 
-	MemDrawing *drawer = new MemDrawing(&mFile, imgWidth * ratio);
+	drawer = new MemDrawing(&mFile, imgWidth * ratio);
+	drawer->settings.hueAxis = (MemDrawing::DrawSettings::Axis)ui->comboBox->currentIndex();
+	drawer->settings.brightnessAxis = (MemDrawing::DrawSettings::Axis)ui->comboBox->currentIndex();
 
+	drawThread = new QThread;
+	drawer->moveToThread(drawThread);
+
+	startDrawing();
+
+}
+
+void MainWindow::startDrawing() {
+	if (drawer == nullptr) {
+		return;
+	}
 	//Connect it to a background thread and update the screen when it finishes rendering
-	QThread *thread = new QThread;
-	drawer->moveToThread(thread);
-	connect(thread, SIGNAL(started()), drawer, SLOT(draw()));
+	connect(drawThread, SIGNAL(started()), drawer, SLOT(draw()));
 	connect(drawer, SIGNAL(done(QImage)), this, SLOT(updateImage(QImage)));
-	connect(drawer, SIGNAL(cleanup()), thread, SLOT(quit()));
-	connect(thread, SIGNAL(finished()), drawer, SLOT(deleteLater()));
-	connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-	thread->start();
+	drawThread->start();
 }
 
 void MainWindow::updateImage(QImage image) {
@@ -88,4 +103,20 @@ void MainWindow::on_horizontalSlider_sliderReleased()
     float scale = range[0] + float(range[1] - range[0]) * (float(value - ui->horizontalSlider->minimum()) / float(ui->horizontalSlider->maximum() - ui->horizontalSlider->minimum()));
 
     scaleImage(scale);
+}
+
+void MainWindow::on_comboBox_currentIndexChanged(int index)
+{
+	if (drawer) {
+		drawer->settings.hueAxis = (MemDrawing::DrawSettings::Axis)index;
+		startDrawing();
+	}
+}
+
+void MainWindow::on_comboBox_2_currentIndexChanged(int index)
+{
+	if (drawer) {
+		drawer->settings.brightnessAxis = (MemDrawing::DrawSettings::Axis)index;
+		startDrawing();
+	}
 }

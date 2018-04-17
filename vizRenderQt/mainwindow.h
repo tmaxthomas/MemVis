@@ -3,7 +3,9 @@
 
 #include <QMainWindow>
 #include "vizFile/vizFile.hpp"
+#include "memDrawing.hpp"
 #include <QGraphicsScene>
+#include <QThread>
 
 namespace Ui {
 class MainWindow;
@@ -25,11 +27,20 @@ private slots:
 
     void updateImage(QImage image);
 
+    void on_comboBox_currentIndexChanged(int index);
+
+    void on_comboBox_2_currentIndexChanged(int index);
+
 private:
     Ui::MainWindow *ui;
     VizFile mFile;
 	QImage memImage;
 	QGraphicsScene *scene;
+	MemDrawing *drawer;
+
+	void startDrawing();
+
+	QThread *drawThread;
 };
 
 #endif // MAINWINDOW_H

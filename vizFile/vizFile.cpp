@@ -3,33 +3,30 @@
 #include "io.hpp"
 
 bool VizFile::read(std::istream &stream) {
+	segments.clear();
+	bytes.clear();
+
 	//Header: version
-	char header[4];
-	if (!IO::read<char, 4>(stream, header, "header")) return false;
-	if (strncmp(header, "vzfh", 4) != 0) return false;
-	
-	U32 version;
-	U32 numReadWrite;
-	U32 numExec;
-	READCHECK(version, U32);
-	READCHECK(numReadWrite, U32);
-	READCHECK(numExec, U32);
-	
 	while (!stream.eof()) {
+		char header[4];
+		if (!IO::read<char, 4>(stream, header, "header")) return false;
+		if (strncmp(header, "vzfh", 4) != 0) return false;
+
+		U32 version;
+		READCHECK(version, U32);
+
+		if (version != 1) return false;
+
 		char section_header[17]{};
 		if (!IO::read<char, 16>(stream, section_header, "section header")) return false;
 		//Which fn is this
 		if (std::string(section_header) == "read-write") {
-			if (!readRWAccessSection(stream, numReadWrite)) return false;
+			if (!readSection(stream)) return false;
 		} else if (std::string(section_header) == "exec") {
-			if (!readExecAccessSection(stream, numExec)) return false;
+			if (!readSection(stream)) return false;
 			break;
-		} else if (std::string(section_header) == "read-write-cache") {
-//			if (!readRWCacheSection(stream, numReadWrite)) return false;
-		} else if (std::string(section_header) == "exec-cache") {
-//			if (!readExecCacheSection(stream, numExec)) return false;
 		} else {
-//			return false;
+			return false;
 		}
 	}
 	
@@ -55,67 +52,37 @@ bool VizFile::read(std::istream &stream) {
 		
 		current->addByte(next, pair.second);
 	}
-	
+
+	std::sort(segments.begin(), segments.end());
+
 	return true;
 }
 
-bool VizFile::readRWAccessSection(std::istream &stream, U32 count) {
-	for (U32 i = 0; i < count; i ++) {
-		Address address;
-		U32 reads;
-		U32 writes;
-		
-		READCHECK(address, Address);
-		READCHECK(reads, U32);
-		READCHECK(writes, U32);
-		
-		bytes[address].numReads = reads;
-		bytes[address].numWrites = writes;
-	}
-	return true;
-}
+bool VizFile::readSection(std::istream &stream) {
+	U64 count;
+	READCHECK(count, U64);
 
-bool VizFile::readRWCacheSection(std::istream &stream, U32 count) {
-	for (U32 i = 0; i < count; i ++) {
+	for (U64 i = 0; i < count; i ++) {
 		Address address;
-		U32 hits;
-		U32 misses;
+
+		U32 numReads;
+		U32 numWrites;
+		U64 numExecutes;
+		U32 numHits;
+		U32 numMisses;
 
 		READCHECK(address, Address);
-		READCHECK(hits, U32);
-		READCHECK(misses, U32);
+		READCHECK(numReads, U32);
+		READCHECK(numWrites, U32);
+		READCHECK(numExecutes, U64);
+		READCHECK(numHits, U32);
+		READCHECK(numMisses, U32);
 
-		bytes[address].numRWHits = hits;
-		bytes[address].numRWMisses = misses;
-	}
-	return true;
-}
-
-bool VizFile::readExecAccessSection(std::istream &stream, U32 count) {
-	for (U32 i = 0; i < count; i ++) {
-		Address address;
-		U64 execs;
-		
-		READCHECK(address, Address);
-		READCHECK(execs, U64);
-		
-		bytes[address].numExecutes = execs;
-	}
-	return true;
-}
-
-bool VizFile::readExecCacheSection(std::istream &stream, U32 count) {
-	for (U32 i = 0; i < count; i ++) {
-		Address address;
-		U32 hits;
-		U32 misses;
-
-		READCHECK(address, Address);
-		READCHECK(hits, U32);
-		READCHECK(misses, U32);
-
-		bytes[address].numExecHits = hits;
-		bytes[address].numExecMisses = misses;
+		bytes[address].numReads += numReads;
+		bytes[address].numWrites += numWrites;
+		bytes[address].numExecutes += numExecutes;
+		bytes[address].numHits += numHits;
+		bytes[address].numMisses += numMisses;
 	}
 	return true;
 }

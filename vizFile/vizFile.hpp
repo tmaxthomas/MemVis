@@ -9,15 +9,12 @@ public:
         U64 numWrites;
         U64 numExecutes;
 
-		U64 numRWHits;
-		U64 numRWMisses;
-
-		U64 numExecHits;
-		U64 numExecMisses;
+		U64 numHits;
+		U64 numMisses;
 
         inline U64 numAccesses() const { return numReads + numWrites + numExecutes; }
 
-        ByteData() : numReads(0), numWrites(0), numExecutes(0) {}
+        ByteData() : numReads(0), numWrites(0), numExecutes(0), numHits(0), numMisses(0) {}
 		virtual ~ByteData() {}
 
         virtual bool operator<(const ByteData &other) const {
@@ -41,6 +38,13 @@ public:
 
 		void addByte(Address address, const ByteData &byte);
 
+		bool operator==(const Segment &rhs) const { return startAddress == rhs.startAddress; }
+		bool operator!=(const Segment &rhs) const { return !(rhs == *this); }
+		bool operator<(const Segment &rhs) const { return startAddress < rhs.startAddress; }
+		bool operator>(const Segment &rhs) const { return rhs < *this; }
+		bool operator<=(const Segment &rhs) const { return !(rhs < *this); }
+		bool operator>=(const Segment &rhs) const { return !(*this < rhs); }
+
 		Segment() : startAddress(0), size(0) {}
 		virtual ~Segment() {}
 	};
@@ -52,8 +56,5 @@ public:
 	virtual ~VizFile() {}
 
 	virtual bool read(std::istream &stream);
-	bool readRWAccessSection(std::istream &stream, U32 count);
-	bool readRWCacheSection(std::istream &stream, U32 count);
-	bool readExecAccessSection(std::istream &stream, U32 count);
-	bool readExecCacheSection(std::istream &stream, U32 count);
+	bool readSection(std::istream &stream);
 };

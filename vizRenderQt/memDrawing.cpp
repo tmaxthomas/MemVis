@@ -34,9 +34,9 @@ void MemDrawing::draw() {
 			if (byte.numAccesses() == 0) continue;
 			float value = (float)byte.numAccesses() / (float)maxAccesses;
 			value = sqrtf(sqrtf(value));
-			float hitRatio = (float)byte.numReads / (float)byte.numAccesses();
-			//Convert hitRatio to a hue
-			float hue = 0.0f /* red */ + (hitRatio * 120.0f /* green */);
+			float readRatio = (float)byte.numReads / (float)byte.numAccesses();
+			//Convert readRatio to a hue
+			float hue = 0.0f /* red */ + (readRatio * 120.0f /* green */);
 			float saturation = 255.0f;
 			float brightness = value * 255.0f;
 
@@ -64,35 +64,17 @@ done:
 }
 
 int MemDrawing::getSegmentYStart(int segmentIndex) const {
-	//Find closest segment before this
-	int closest = -1;
-
-	const VizFile::Segment &segment = mFile->segments[segmentIndex];
-
-	for (int i = 0; i < mFile->segments.size(); i ++) {
-		if (!mDisplayedSegments[i])
-			continue;
-		const auto &other = mFile->segments[i];
-
-		Address end = other.endAddress();
-		if (end < segment.startAddress && (closest == -1 || end > mFile->segments[closest].endAddress())) {
-			closest = i;
-		}
-	}
-
-	if (closest == -1) {
+	if (segmentIndex == 0) {
 		//We're first
 		return 0;
 	}
 
-	int closestEnd;
-	if (mSegmentLocations[closest] == -1) {
-		closestEnd = getSegmentYStart(closest);
-	} else {
-		closestEnd = mSegmentLocations[closest];
+	if (mSegmentLocations[segmentIndex] != -1) {
+		return mSegmentLocations[segmentIndex];
 	}
 
-	int closestHeight = getSegmentHeight(closest);
+	int closestHeight = getSegmentHeight(segmentIndex - 1);
+	int closestEnd = getSegmentYStart(segmentIndex - 1);
 
 	int y = closestEnd + closestHeight + 4;
 	mSegmentLocations[segmentIndex] = y;

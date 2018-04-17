@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(IVizFinal CXX)
+project(IVizFinal C CXX)
 
 # Allow C++11 features
 if (UNIX)

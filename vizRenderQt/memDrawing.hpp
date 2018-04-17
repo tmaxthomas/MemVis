@@ -14,6 +14,17 @@ class MemDrawing : public QObject {
 	mutable std::vector<int> mSegmentLocations; 
 
 public:
+	struct DrawSettings {
+		enum Axis {
+			ReadsVsWrites,
+			HitsVsMisses,
+			Accesses
+		};
+		Axis hueAxis = ReadsVsWrites;
+		Axis brightnessAxis = Accesses;
+	};
+	DrawSettings settings;
+
 	MemDrawing(VizFile *file, int width) : mFile(file), mSize(width, 0) {}
 
 public slots:
