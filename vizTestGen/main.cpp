@@ -1,3 +1,4 @@
+#include <unistd.h>
 
 #include "vizFile/vizFile.hpp"
 

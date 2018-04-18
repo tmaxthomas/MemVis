@@ -17,13 +17,6 @@ set (VIZFILE_SRC
 
 add_library(VizFile STATIC ${VIZFILE_SRC})
 
-set (VIZTESTGEN_SRC
-        vizTestGen/main.cpp
-)
-
-add_executable(VizTestGen ${VIZTESTGEN_SRC})
-target_link_libraries(VizTestGen VizFile)
-
 set (MEMTEST_SRC
         memTest/main.c
 )
