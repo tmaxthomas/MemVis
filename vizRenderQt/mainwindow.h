@@ -38,7 +38,14 @@ private:
 	QGraphicsScene *scene;
 	MemDrawing *drawer;
 
+	float mScale;
+
 	void startDrawing();
+
+	void hoverAt(QPointF pt);
+
+	void hoverEvent(QHoverEvent *e);
+	bool event(QEvent *e);
 
 	QThread *drawThread;
 };

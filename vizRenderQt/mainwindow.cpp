@@ -37,6 +37,7 @@ void MainWindow::on_loadFileButton_clicked() {
 	qreal ratio = QApplication::screens().at(0)->devicePixelRatio();
 
 	int imgWidth = 1024;
+	mScale = 1.0f;
 
 	setGeometry(0, 0, imgWidth + 40, 640);
 
@@ -49,6 +50,8 @@ void MainWindow::on_loadFileButton_clicked() {
 
 	startDrawing();
 
+	setAttribute(Qt::WA_Hover, true);
+	connect(ui->graphicsView, SIGNAL(event(QEvent *)), this, SLOT(hoverEvent(QEvent *)));
 }
 
 void MainWindow::startDrawing() {
@@ -67,6 +70,7 @@ void MainWindow::updateImage(QImage image) {
 }
 
 void MainWindow::scaleImage(float scale) {
+	mScale = scale;
 	qreal ratio = QApplication::screens().at(0)->devicePixelRatio();
 
 	int newW = memImage.size().width();
@@ -119,4 +123,36 @@ void MainWindow::on_comboBox_2_currentIndexChanged(int index)
 		drawer->settings.brightnessAxis = (MemDrawing::DrawSettings::Axis)index;
 		startDrawing();
 	}
+}
+
+void MainWindow::hoverAt(QPointF pt) {
+	printf("%f %f\n", pt.x(), pt.y());
+}
+
+void MainWindow::hoverEvent(QHoverEvent *e) {
+	//Map to relative to the graphics view
+	QPoint gp = ui->graphicsView->mapFrom(this, e->pos());
+	//And then to relative to the image in the scene... this can be used for memory addresses
+	QPointF lp = ui->graphicsView->mapToScene(gp);
+	lp /= mScale;
+
+	if (lp.x() >= 0 && lp.y() >= 0 &&
+	    lp.x() <= ui->graphicsView->contentsRect().width() &&
+		lp.y() <= ui->graphicsView->contentsRect().height()) {
+		hoverAt(lp);
+	}
+}
+
+bool MainWindow::event(QEvent *e) {
+	switch (e->type()) {
+		case QEvent::HoverMove:
+			hoverEvent(static_cast<QHoverEvent *>(e));
+			break;
+		case QEvent::Scroll:
+			//TODO Cast to QScrollEvent and find position relative to the graphics view
+			break;
+		default: //ignore
+			break;
+	}
+	return QMainWindow::event(e);
 }
