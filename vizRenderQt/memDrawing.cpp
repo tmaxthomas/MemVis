@@ -69,16 +69,14 @@ void MemDrawing::draw() {
 			QColor color;
 			color.setHsv(hue, saturation, brightness);
 
-			QPoint points[mScale * mScale];
-			getPointsForAddress(j, mFile->segments[j].startAddress + i, points);
+			QPoint point;
+			getPointForAddress(j, mFile->segments[j].startAddress + i, point);
 
-			for (int k = 0; k < mScale * mScale; k ++) {
-				if (points[k].y() >= h) {
-					goto done;
-				}
-				img.setPixelColor(points[k], color);
-				count ++;
+			if (point.y() >= h) {
+				goto done;
 			}
+			img.setPixelColor(point, color);
+			count ++;
 		}
 		printf("Rendered %d / %lu segments\n", j, mFile->segments.size());
 	}
@@ -114,11 +112,11 @@ int MemDrawing::getSegmentHeight(int segmentIndex) const {
 
 QRect MemDrawing::getSegmentBounds(int segmentIndex) const {
 	return QRect(
-		0, getSegmentYStart(segmentIndex) * mScale, getPixelWidth() * mScale, getSegmentHeight(segmentIndex) * mScale
+		0, getSegmentYStart(segmentIndex), getPixelWidth(), getSegmentHeight(segmentIndex)
 	);
 }
 
-void MemDrawing::getPointsForAddress(int segmentIndex, Address addr, QPoint *points) const {
+void MemDrawing::getPointForAddress(int segmentIndex, Address addr, QPoint &point) const {
 	int w = getPixelWidth();
 
 	Address rel = addr - mFile->segments[segmentIndex].startAddress;
@@ -127,13 +125,11 @@ void MemDrawing::getPointsForAddress(int segmentIndex, Address addr, QPoint *poi
 	int sy = rel / w;
 	sy += getSegmentYStart(segmentIndex);
 
-	int i = 0;
-	for (int x = 0; x < mScale; x ++) {
-		for (int y = 0; y < mScale; y ++) {
-			points[i].setX(sx * mScale + x);
-			points[i].setY(sy * mScale + y);
-			i ++;
-		}
-	}
+	point.setX(sx);
+	point.setY(sy);
+}
+
+Address MemDrawing::getAddressForPoint(QPointF point) const {
+	return 0;
 }
 

@@ -38,7 +38,9 @@ private:
 	int getSegmentYStart(int segmentIndex) const;
 	int getSegmentHeight(int segmentIndex) const;
 	QRect getSegmentBounds(int segmentIndex) const;
-	void getPointsForAddress(int segmentIndex, Address addr, QPoint *points) const;
+	void getPointForAddress(int segmentIndex, Address addr, QPoint &point) const;
+
+	Address getAddressForPoint(QPointF point) const;
 
 	inline int getPixelWidth() const { return mSize.width() / mScale; }
 	inline int getPixelHeight() const { return mSize.height() / mScale; }
