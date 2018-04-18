@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QFont monofont("Monospace");
     monofont.setStyleHint(QFont::TypeWriter);
     ui->textBrowser->setFont(monofont);
+	ui->progressBar->setVisible(false);
 }
 
 MainWindow::~MainWindow() {
@@ -28,11 +29,18 @@ MainWindow::~MainWindow() {
 void MainWindow::on_loadFileButton_clicked() {
 	//Get their file selection and load it
 	QString file = QFileDialog::getOpenFileName(this, tr("Load viz file"), "", tr("Viz File (*.vzf)"));
+
+	ui->progressBar->setVisible(true);
+	ui->progressBar->setMinimum(0);
+	ui->progressBar->setMaximum(100);
+	ui->progressBar->setValue(0);
+
 	std::ifstream stream(file.toUtf8().constData());
 	if (!mFile.read(stream)) {
 		QMessageBox::critical(this, "Could not load file", "Selected file is not in the correct format");
 		return;
 	}
+	ui->progressBar->setValue(50);
 
 	printf("Loaded file with %lu bytes\n", mFile.bytes.size());
 	mScale = 1.0f;
@@ -66,6 +74,7 @@ void MainWindow::startDrawing() {
 }
 
 void MainWindow::updateImage(QImage image) {
+	ui->progressBar->setVisible(false);
 	memImage = image;
 	scaleImage(1.0f);
 }
