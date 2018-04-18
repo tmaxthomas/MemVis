@@ -2,9 +2,10 @@
 #include <math.h>
 
 void MemDrawing::draw() {
-	mScale = 1;
+	//Clear locations before we draw so they recalculate
 	mSegmentLocations = std::vector<int>(mFile->segments.size(), -1);
 
+	//Width/height parameters
 	int w = (U32)mSize.width() & ~0xF;
 	int h = getSegmentYStart(mFile->segments.size() - 1) + getSegmentHeight(mFile->segments.size() - 1) + 1;
 	if (h & 0xF) h += 0x10 - (h & 0xF);
@@ -12,28 +13,31 @@ void MemDrawing::draw() {
 
 	printf("Image will be %dx%d pixels\n", w, h);
 
+	//Create a new image to render into
 	QImage img(mSize, QImage::Format_ARGB32_Premultiplied);
-
 	img.fill(Qt::black);
 
 	int count =0;
-	for (int j = 0; j < mFile->segments.size(); j ++) {
-		if (!mDisplayedSegments[j])
+	for (int i = 0; i < mFile->segments.size(); i ++) {
+		if (!mDisplayedSegments[i])
 			continue;
 
+		const VizFile::Segment &segment = mFile->segments[i];
+
+		//Find the byte with the max # addresses so we have something to compare #addresses to
 		U32 maxAccesses = 0;
-		for (int i = 0; i < mFile->segments[j].size; i ++) {
-			const auto &byte = mFile->segments[j].bytes[i];
+		for (int j = 0; j < segment.size; j ++) {
+			const auto &byte = segment.bytes[j];
 			if (byte.numAccesses() > maxAccesses) {
 				maxAccesses = byte.numAccesses();
 			}
 		}
 
-		for (int i = 0; i < mFile->segments[j].size; i ++) {
-			const auto &byte = mFile->segments[j].bytes[i];
+		for (int j = 0; j < segment.size; j ++) {
+			const auto &byte = segment.bytes[j];
 			if (byte.numAccesses() == 0) continue;
             float accessRatio = (float)byte.numAccesses() / (float)maxAccesses;
-            accessRatio = sqrtf(sqrtf(accessRatio));
+            accessRatio = sqrtf(sqrtf(accessRatio)); //Makes it look better
 			float readRatio = (float)byte.numReads / (float)byte.numAccesses();
 			float writeRatio = (float)byte.numWrites / (float)byte.numAccesses();
 			float execRatio = (float)byte.numExecutes / (float)byte.numAccesses();
@@ -67,7 +71,7 @@ void MemDrawing::draw() {
             //Brightness switch
             switch(settings.brightnessAxis) {
             case MemDrawing::DrawSettings::Axis::Accesses:
-                 brightness = accessRatio * 255.0f;
+            	brightness = accessRatio * 255.0f;
                 break;
             case MemDrawing::DrawSettings::Axis::HitAccessRatio:
                 brightness = hitRatio * 255.0f;
@@ -89,9 +93,11 @@ void MemDrawing::draw() {
 			QColor color;
 			color.setHsv(hue, saturation, brightness);
 
+			//Where we at
 			QPoint point;
-			getPointForAddress(j, mFile->segments[j].startAddress + i, point);
+			getPointForAddress(i, segment.startAddress + j, point);
 
+			//Error checking! This should never happen
 			if (point.y() >= h) {
 				printf("Too far!\n");
 				goto done;
@@ -99,7 +105,7 @@ void MemDrawing::draw() {
 			img.setPixelColor(point, color);
 			count ++;
 		}
-		printf("Rendered %d / %lu segments\n", j, mFile->segments.size());
+		printf("Rendered %d / %lu segments\n", i, mFile->segments.size());
 	}
 done:
 	printf("Rendered %d pixels\n", count);
@@ -114,10 +120,12 @@ int MemDrawing::getSegmentYStart(int segmentIndex) const {
 		return 0;
 	}
 
+	//We have cache
 	if (mSegmentLocations[segmentIndex] != -1) {
 		return mSegmentLocations[segmentIndex];
 	}
 
+	//Our start = prev seg's end = prev start + prev height
 	int closestHeight = getSegmentHeight(segmentIndex - 1);
 	int closestEnd = getSegmentYStart(segmentIndex - 1);
 
@@ -160,8 +168,7 @@ Address MemDrawing::getAddressForPoint(QPointF point) const {
 		if (!mDisplayedSegments[i])
 			continue;
 		if (getSegmentBounds(i).contains(pt)) {
-			//Now translate it back
-
+			//Step 2: Now translate it back
 			int dx = pt.x();
 			int dy = pt.y() - getSegmentYStart(i);
 

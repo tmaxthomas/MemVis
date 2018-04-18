@@ -21,11 +21,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->textBrowser->setFont(monofont);
 	ui->progressBar->setVisible(false);
 
+	//Construct list view model
 	model = new QStandardItemModel;
-
 	ui->listView->setModel(model);
 	ui->listView->setSelectionMode(QListView::SelectionMode::ExtendedSelection);
+	connect(model, SIGNAL(itemChanged(QStandardItem *)), this, SLOT(handleCheckedChanged(QStandardItem *)));
 
+	//Tell the drawer to run on a background thread and notify us when it's done
 	drawer = new MemDrawing();
 	drawer->setFile(&mFile);
 	drawThread = new QThread;
@@ -33,8 +35,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	connect(drawer, SIGNAL(done(QImage)), this, SLOT(updateImage(QImage)));
 	drawThread->start();
 
-	connect(model, SIGNAL(itemChanged(QStandardItem *)), this, SLOT(handleCheckedChanged(QStandardItem *)));
-
+	//Let us hover for info
 	setAttribute(Qt::WA_Hover, true);
 }
 
@@ -75,6 +76,7 @@ void MainWindow::on_loadFileButton_clicked() {
 	mScale = 1.0f;
 	drawer->resetVisible();
 
+	//Generate checkboxes
 	model->clear();
 	for (int i = 0; i < mFile.segments.size(); i ++) {
 		char title[64];
