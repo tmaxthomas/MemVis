@@ -28,7 +28,18 @@ public:
 	};
 	DrawSettings settings;
 
-	MemDrawing(VizFile *file, int width) : mFile(file), mSize(width, 0) {}
+	void setFile(VizFile *file) {
+		mFile = file;
+	}
+	void setSize(QSize size) {
+		mSize = size;
+	}
+	void setSegmentVisible(int segment, bool vis) {
+		mDisplayedSegments[segment] = vis;
+	}
+	void resetVisible() {
+		mDisplayedSegments = std::vector<bool>(mFile->segments.size(), true);
+	}
 
 public slots:
 	void draw();

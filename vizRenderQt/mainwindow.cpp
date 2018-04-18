@@ -21,15 +21,34 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->textBrowser->setFont(monofont);
 	ui->progressBar->setVisible(false);
 
-
 	model = new QStandardItemModel;
 
 	ui->listView->setModel(model);
-	ui->listView->setSelectionMode(QListView::SelectionMode::ContiguousSelection);
+	ui->listView->setSelectionMode(QListView::SelectionMode::ExtendedSelection);
+
+	drawer = new MemDrawing();
+	drawer->setFile(&mFile);
+	drawThread = new QThread;
+	drawer->moveToThread(drawThread);
+	connect(drawer, SIGNAL(done(QImage)), this, SLOT(updateImage(QImage)));
+	drawThread->start();
+
+	connect(model, SIGNAL(itemChanged(QStandardItem *)), this, SLOT(handleCheckedChanged(QStandardItem *)));
+
+	setAttribute(Qt::WA_Hover, true);
 }
 
 MainWindow::~MainWindow() {
 	delete ui;
+}
+
+void MainWindow::handleCheckedChanged(QStandardItem *item) {
+	const QModelIndex index = model->indexFromItem(item);
+	QItemSelectionModel *selModel = ui->listView->selectionModel();
+	selModel->select(QItemSelection(index, index), item->checkState() == Qt::Checked ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
+
+	drawer->setSegmentVisible(index.row(), item->checkState() == Qt::Checked);
+	startDrawing();
 }
 
 void MainWindow::on_loadFileButton_clicked() {
@@ -54,7 +73,9 @@ void MainWindow::on_loadFileButton_clicked() {
 
 	printf("Loaded file with %lu bytes\n", mFile.bytes.size());
 	mScale = 1.0f;
+	drawer->resetVisible();
 
+	model->clear();
 	for (int i = 0; i < mFile.segments.size(); i ++) {
 		char title[64];
 		snprintf(title, 64, "0x%llx", mFile.segments[i].startAddress);
@@ -71,19 +92,11 @@ void MainWindow::on_loadFileButton_clicked() {
 	setGeometry(0, 0, imgWidth + 400, 800);
 
 	//Connect it to a background thread and update the screen when it finishes rendering
-	drawer = new MemDrawing(&mFile, imgWidth);
+	drawer->setSize(QSize(imgWidth, 0));
 	drawer->settings.hueAxis = (MemDrawing::DrawSettings::Axis)ui->comboBox->currentIndex();
 	drawer->settings.brightnessAxis = (MemDrawing::DrawSettings::Axis)ui->comboBox_2->currentIndex();
 
-	drawThread = new QThread;
-	drawer->moveToThread(drawThread);
-	connect(drawer, SIGNAL(done(QImage)), this, SLOT(updateImage(QImage)));
-	connect(drawer, SIGNAL(cleanup()), drawer, SLOT(updateImage(QImage)));
-	drawThread->start();
-
 	startDrawing();
-
-	setAttribute(Qt::WA_Hover, true);
 }
 
 void MainWindow::startDrawing() {

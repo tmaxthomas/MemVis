@@ -2,9 +2,8 @@
 #include <math.h>
 
 void MemDrawing::draw() {
-	mDisplayedSegments = std::vector<bool>(mFile->segments.size(), true);
-	mSegmentLocations = std::vector<int>(mFile->segments.size(), -1);
 	mScale = 1;
+	mSegmentLocations = std::vector<int>(mFile->segments.size(), -1);
 
 	int w = (U32)mSize.width() & ~0xF;
 	int h = getSegmentYStart(mFile->segments.size() - 1) + getSegmentHeight(mFile->segments.size() - 1) + 1;
@@ -19,6 +18,9 @@ void MemDrawing::draw() {
 
 	int count =0;
 	for (int j = 0; j < mFile->segments.size(); j ++) {
+		if (!mDisplayedSegments[j])
+			continue;
+
 		U32 maxAccesses = 0;
 		for (int i = 0; i < mFile->segments[j].size; i ++) {
 			const auto &byte = mFile->segments[j].bytes[i];
@@ -27,8 +29,6 @@ void MemDrawing::draw() {
 			}
 		}
 
-		if (!mDisplayedSegments[j])
-			continue;
 		for (int i = 0; i < mFile->segments[j].size; i ++) {
 			const auto &byte = mFile->segments[j].bytes[i];
 			if (byte.numAccesses() == 0) continue;
@@ -93,6 +93,7 @@ void MemDrawing::draw() {
 			getPointForAddress(j, mFile->segments[j].startAddress + i, point);
 
 			if (point.y() >= h) {
+				printf("Too far!\n");
 				goto done;
 			}
 			img.setPixelColor(point, color);
@@ -120,13 +121,16 @@ int MemDrawing::getSegmentYStart(int segmentIndex) const {
 	int closestHeight = getSegmentHeight(segmentIndex - 1);
 	int closestEnd = getSegmentYStart(segmentIndex - 1);
 
-	int y = closestEnd + closestHeight + 4;
+	int y = mDisplayedSegments[segmentIndex] ? closestEnd + closestHeight + 4 : closestEnd;
 	mSegmentLocations[segmentIndex] = y;
 
 	return y;
 }
 
 int MemDrawing::getSegmentHeight(int segmentIndex) const {
+	if (!mDisplayedSegments[segmentIndex]) {
+		return 0;
+	}
 	return (mFile->segments[segmentIndex].size / getPixelWidth()) + 1; //Round up
 }
 
