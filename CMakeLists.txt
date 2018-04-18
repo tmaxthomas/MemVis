@@ -17,13 +17,13 @@ set (VIZFILE_SRC
 
 add_library(VizFile STATIC ${VIZFILE_SRC})
 
-set (MEMTEST_SRC
-        memTest/main.c
+set (MEMMESSAGEWRITER_SRC
+		tests/memMessageWriter/main.c
 )
 
-add_executable(MemTest ${MEMTEST_SRC})
-set_target_properties(MemTest PROPERTIES CMAKE_OSX_ARCHITECTURES "i386" CMAKE_XCODE_ATTRIBUTE_ARCHS "\$(ARCHS_STANDARD_32_BIT)")
-set_target_properties(MemTest PROPERTIES COMPILE_FLAGS "-m32 -arch i386" LINK_FLAGS "-m32 -arch i386")
+add_executable(MemMessageWriter ${MEMMESSAGEWRITER_SRC})
+set_target_properties(MemMessageWriter PROPERTIES CMAKE_OSX_ARCHITECTURES "i386" CMAKE_XCODE_ATTRIBUTE_ARCHS "\$(ARCHS_STANDARD_32_BIT)")
+set_target_properties(MemMessageWriter PROPERTIES COMPILE_FLAGS "-m32 -arch i386" LINK_FLAGS "-m32 -arch i386")
 
 set (CACHETRACHE_SRC
         cacheTrache/main.c
