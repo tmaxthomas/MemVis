@@ -25,6 +25,14 @@ add_executable(MemTest ${MEMTEST_SRC})
 set_target_properties(MemTest PROPERTIES CMAKE_OSX_ARCHITECTURES "i386" CMAKE_XCODE_ATTRIBUTE_ARCHS "\$(ARCHS_STANDARD_32_BIT)")
 set_target_properties(MemTest PROPERTIES COMPILE_FLAGS "-m32 -arch i386" LINK_FLAGS "-m32 -arch i386")
 
+set (CACHETRACHE_SRC
+        cacheTrache/main.c
+)
+
+add_executable(CacheTrache ${CACHETRACHE_SRC})
+set_target_properties(CacheTrache PROPERTIES CMAKE_OSX_ARCHITECTURES "i386" CMAKE_XCODE_ATTRIBUTE_ARCHS "\$(ARCHS_STANDARD_32_BIT)")
+set_target_properties(CacheTrache PROPERTIES COMPILE_FLAGS "-m32 -arch i386" LINK_FLAGS "-m32 -arch i386")
+
 set(CMAKE_OSX_ARCHITECTURES "x86_64")
 set(CMAKE_XCODE_ATTRIBUTE_ARCHS "\$(ARCHS_STANDARD_64_BIT)")
 
