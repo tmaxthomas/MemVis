@@ -35,6 +35,8 @@ void MemDrawing::draw() {
             float accessRatio = (float)byte.numAccesses() / (float)maxAccesses;
             accessRatio = sqrtf(sqrtf(accessRatio));
 			float readRatio = (float)byte.numReads / (float)byte.numAccesses();
+			float writeRatio = (float)byte.numWrites / (float)byte.numAccesses();
+			float execRatio = (float)byte.numExecutes / (float)byte.numAccesses();
             float hitRatio = (float)byte.numHits / (float)byte.numAccesses();
             float hue, saturation, brightness;
 
@@ -43,12 +45,21 @@ void MemDrawing::draw() {
             case MemDrawing::DrawSettings::Axis::Accesses:
                 hue = 0.0f + (accessRatio * 120.0f);
                 break;
-            case MemDrawing::DrawSettings::Axis::HitsVsMisses:
+            case MemDrawing::DrawSettings::Axis::HitAccessRatio:
                 hue = 0.0f + (hitRatio * 120.0f);
                 break;
-            case MemDrawing::DrawSettings::Axis::ReadsVsWrites:
+            case MemDrawing::DrawSettings::Axis::ReadAccessRatio:
                 hue = 0.0f + (readRatio * 120.0f);
                 break;
+            case MemDrawing::DrawSettings::Axis::WriteAccessRatio:
+                hue = 0.0f + (writeRatio * 120.0f);
+                break;
+            case MemDrawing::DrawSettings::Axis::ExecAccessRatio:
+                hue = 0.0f + (execRatio * 120.0f);
+                break;
+			case MemDrawing::DrawSettings::Axis::Constant:
+	            hue = 60.0f;
+	            break;
             }
 
             saturation = 255.0f;
@@ -58,12 +69,21 @@ void MemDrawing::draw() {
             case MemDrawing::DrawSettings::Axis::Accesses:
                  brightness = accessRatio * 255.0f;
                 break;
-            case MemDrawing::DrawSettings::Axis::HitsVsMisses:
+            case MemDrawing::DrawSettings::Axis::HitAccessRatio:
                 brightness = hitRatio * 255.0f;
                 break;
-            case MemDrawing::DrawSettings::Axis::ReadsVsWrites:
+            case MemDrawing::DrawSettings::Axis::ReadAccessRatio:
                 brightness = readRatio * 255.0f;
                 break;
+            case MemDrawing::DrawSettings::Axis::WriteAccessRatio:
+                brightness = writeRatio * 255.0f;
+                break;
+            case MemDrawing::DrawSettings::Axis::ExecAccessRatio:
+                brightness = execRatio * 255.0f;
+                break;
+			case MemDrawing::DrawSettings::Axis::Constant:
+            	brightness = 255.0f;
+            	break;
             }
 
 			QColor color;

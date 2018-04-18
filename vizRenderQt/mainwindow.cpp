@@ -14,12 +14,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	scene = nullptr;
 	drawer = nullptr;
 
-	ui->comboBox->setCurrentIndex(MemDrawing::DrawSettings::ReadsVsWrites);
+	ui->comboBox->setCurrentIndex(MemDrawing::DrawSettings::ReadAccessRatio);
     ui->comboBox_2->setCurrentIndex(MemDrawing::DrawSettings::Accesses);
     QFont monofont("Monospace");
     monofont.setStyleHint(QFont::TypeWriter);
     ui->textBrowser->setFont(monofont);
 	ui->progressBar->setVisible(false);
+
+
+	model = new QStandardItemModel;
+
+	ui->listView->setModel(model);
+	ui->listView->setSelectionMode(QListView::SelectionMode::ContiguousSelection);
 }
 
 MainWindow::~MainWindow() {
@@ -29,6 +35,10 @@ MainWindow::~MainWindow() {
 void MainWindow::on_loadFileButton_clicked() {
 	//Get their file selection and load it
 	QString file = QFileDialog::getOpenFileName(this, tr("Load viz file"), "", tr("Viz File (*.vzf)"));
+	//They might have cancelled
+	if (!QFile::exists(file)) {
+		return;
+	}
 
 	ui->progressBar->setVisible(true);
 	ui->progressBar->setMinimum(0);
@@ -45,6 +55,18 @@ void MainWindow::on_loadFileButton_clicked() {
 	printf("Loaded file with %lu bytes\n", mFile.bytes.size());
 	mScale = 1.0f;
 
+	for (int i = 0; i < mFile.segments.size(); i ++) {
+		char title[64];
+		snprintf(title, 64, "0x%llx", mFile.segments[i].startAddress);
+		QStandardItem *listItem = new QStandardItem(QString(title));
+
+		listItem->setCheckable(true);
+		listItem->setCheckState(Qt::Checked);
+		listItem->setData(Qt::Checked, Qt::CheckStateRole);
+
+		model->appendRow(listItem);
+	}
+
 	int imgWidth = 1024;
 	setGeometry(0, 0, imgWidth + 400, 800);
 
@@ -56,13 +78,12 @@ void MainWindow::on_loadFileButton_clicked() {
 	drawThread = new QThread;
 	drawer->moveToThread(drawThread);
 	connect(drawer, SIGNAL(done(QImage)), this, SLOT(updateImage(QImage)));
-	connect(drawer, SIGNAL(cleanup), drawer, SLOT(updateImage(QImage)));
+	connect(drawer, SIGNAL(cleanup()), drawer, SLOT(updateImage(QImage)));
 	drawThread->start();
 
 	startDrawing();
 
 	setAttribute(Qt::WA_Hover, true);
-	connect(ui->graphicsView, SIGNAL(event(QEvent *)), this, SLOT(hoverEvent(QEvent *)));
 }
 
 void MainWindow::startDrawing() {

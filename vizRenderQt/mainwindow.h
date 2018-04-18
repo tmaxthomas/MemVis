@@ -6,6 +6,7 @@
 #include "memDrawing.hpp"
 #include <QGraphicsScene>
 #include <QThread>
+#include <QStandardItemModel>
 
 namespace Ui {
 class MainWindow;
@@ -37,6 +38,7 @@ private:
 	QImage memImage;
 	QGraphicsScene *scene;
 	MemDrawing *drawer;
+	QStandardItemModel *model;
 
 	float mScale;
 

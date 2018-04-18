@@ -16,11 +16,14 @@ class MemDrawing : public QObject {
 public:
 	struct DrawSettings {
 		enum Axis {
-			ReadsVsWrites,
-			HitsVsMisses,
-			Accesses
+			ReadAccessRatio,
+			WriteAccessRatio,
+			ExecAccessRatio,
+			HitAccessRatio,
+			Accesses,
+			Constant
 		};
-		Axis hueAxis = ReadsVsWrites;
+		Axis hueAxis = ReadAccessRatio;
 		Axis brightnessAxis = Accesses;
 	};
 	DrawSettings settings;

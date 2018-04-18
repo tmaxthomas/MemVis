@@ -20,6 +20,7 @@
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QListView>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QProgressBar>
@@ -38,14 +39,16 @@ public:
     QGridLayout *gridLayout;
     QFrame *frame_2;
     QGridLayout *gridLayout_2;
+    QListView *listView;
+    QLabel *label_5;
     QFrame *frame;
     QFormLayout *formLayout_2;
     QLabel *label;
     QComboBox *comboBox;
     QComboBox *comboBox_2;
     QLabel *label_2;
-    QTextBrowser *textBrowser;
     QLabel *label_4;
+    QTextBrowser *textBrowser;
     QGraphicsView *graphicsView;
     QWidget *widget;
     QGridLayout *gridLayout_3;
@@ -86,6 +89,21 @@ public:
         gridLayout_2->setContentsMargins(11, 11, 11, 11);
         gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
         gridLayout_2->setContentsMargins(0, 0, 0, 0);
+        listView = new QListView(frame_2);
+        listView->setObjectName(QStringLiteral("listView"));
+        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(2);
+        sizePolicy1.setHeightForWidth(listView->sizePolicy().hasHeightForWidth());
+        listView->setSizePolicy(sizePolicy1);
+
+        gridLayout_2->addWidget(listView, 5, 0, 1, 1);
+
+        label_5 = new QLabel(frame_2);
+        label_5->setObjectName(QStringLiteral("label_5"));
+
+        gridLayout_2->addWidget(label_5, 4, 0, 1, 1);
+
         frame = new QFrame(frame_2);
         frame->setObjectName(QStringLiteral("frame"));
         frame->setFrameShape(QFrame::NoFrame);
@@ -105,11 +123,17 @@ public:
         comboBox->addItem(QString());
         comboBox->addItem(QString());
         comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
         comboBox->setObjectName(QStringLiteral("comboBox"));
 
         formLayout_2->setWidget(0, QFormLayout::FieldRole, comboBox);
 
         comboBox_2 = new QComboBox(frame);
+        comboBox_2->addItem(QString());
+        comboBox_2->addItem(QString());
+        comboBox_2->addItem(QString());
         comboBox_2->addItem(QString());
         comboBox_2->addItem(QString());
         comboBox_2->addItem(QString());
@@ -125,28 +149,31 @@ public:
 
         gridLayout_2->addWidget(frame, 1, 0, 1, 1);
 
-        textBrowser = new QTextBrowser(frame_2);
-        textBrowser->setObjectName(QStringLiteral("textBrowser"));
-        sizePolicy.setHeightForWidth(textBrowser->sizePolicy().hasHeightForWidth());
-        textBrowser->setSizePolicy(sizePolicy);
-
-        gridLayout_2->addWidget(textBrowser, 3, 0, 1, 1);
-
         label_4 = new QLabel(frame_2);
         label_4->setObjectName(QStringLiteral("label_4"));
 
         gridLayout_2->addWidget(label_4, 2, 0, 1, 1);
+
+        textBrowser = new QTextBrowser(frame_2);
+        textBrowser->setObjectName(QStringLiteral("textBrowser"));
+        QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy2.setHorizontalStretch(1);
+        sizePolicy2.setVerticalStretch(2);
+        sizePolicy2.setHeightForWidth(textBrowser->sizePolicy().hasHeightForWidth());
+        textBrowser->setSizePolicy(sizePolicy2);
+
+        gridLayout_2->addWidget(textBrowser, 3, 0, 1, 1);
 
 
         gridLayout->addWidget(frame_2, 0, 1, 1, 1);
 
         graphicsView = new QGraphicsView(centralWidget);
         graphicsView->setObjectName(QStringLiteral("graphicsView"));
-        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        sizePolicy1.setHorizontalStretch(2);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(graphicsView->sizePolicy().hasHeightForWidth());
-        graphicsView->setSizePolicy(sizePolicy1);
+        QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy3.setHorizontalStretch(2);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(graphicsView->sizePolicy().hasHeightForWidth());
+        graphicsView->setSizePolicy(sizePolicy3);
 
         gridLayout->addWidget(graphicsView, 0, 4, 1, 1);
 
@@ -180,11 +207,11 @@ public:
         gridLayout_4->setContentsMargins(0, 0, 0, 0);
         loadFileButton = new QPushButton(widget_2);
         loadFileButton->setObjectName(QStringLiteral("loadFileButton"));
-        QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(loadFileButton->sizePolicy().hasHeightForWidth());
-        loadFileButton->setSizePolicy(sizePolicy2);
+        QSizePolicy sizePolicy4(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
+        sizePolicy4.setHeightForWidth(loadFileButton->sizePolicy().hasHeightForWidth());
+        loadFileButton->setSizePolicy(sizePolicy4);
         loadFileButton->setLayoutDirection(Qt::LeftToRight);
 
         gridLayout_4->addWidget(loadFileButton, 0, 0, 1, 1);
@@ -216,14 +243,21 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MemViz, TN", nullptr));
+        label_5->setText(QApplication::translate("MainWindow", "Hide Pages:", nullptr));
         label->setText(QApplication::translate("MainWindow", "Hue:", nullptr));
-        comboBox->setItemText(0, QApplication::translate("MainWindow", "Reads vs Writes", nullptr));
-        comboBox->setItemText(1, QApplication::translate("MainWindow", "Hits vs Misses", nullptr));
-        comboBox->setItemText(2, QApplication::translate("MainWindow", "Accesses", nullptr));
+        comboBox->setItemText(0, QApplication::translate("MainWindow", "Read/Access Ratio", nullptr));
+        comboBox->setItemText(1, QApplication::translate("MainWindow", "Write/Access Ratio", nullptr));
+        comboBox->setItemText(2, QApplication::translate("MainWindow", "Exec/Access Ratio", nullptr));
+        comboBox->setItemText(3, QApplication::translate("MainWindow", "Hit/Access Ratio", nullptr));
+        comboBox->setItemText(4, QApplication::translate("MainWindow", "Accesses", nullptr));
+        comboBox->setItemText(5, QApplication::translate("MainWindow", "Constant", nullptr));
 
-        comboBox_2->setItemText(0, QApplication::translate("MainWindow", "Reads vs Writes", nullptr));
-        comboBox_2->setItemText(1, QApplication::translate("MainWindow", "Hits vs Misses", nullptr));
-        comboBox_2->setItemText(2, QApplication::translate("MainWindow", "Accesses", nullptr));
+        comboBox_2->setItemText(0, QApplication::translate("MainWindow", "Read/Access Ratio", nullptr));
+        comboBox_2->setItemText(1, QApplication::translate("MainWindow", "Write/Access Ratio", nullptr));
+        comboBox_2->setItemText(2, QApplication::translate("MainWindow", "Exec/Access Ratio", nullptr));
+        comboBox_2->setItemText(3, QApplication::translate("MainWindow", "Hit/Access Ratio", nullptr));
+        comboBox_2->setItemText(4, QApplication::translate("MainWindow", "Accesses", nullptr));
+        comboBox_2->setItemText(5, QApplication::translate("MainWindow", "Constant", nullptr));
 
         label_2->setText(QApplication::translate("MainWindow", "Brightness:", nullptr));
         label_4->setText(QApplication::translate("MainWindow", "Highlight Information:", nullptr));

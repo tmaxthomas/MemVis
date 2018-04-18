@@ -54,6 +54,23 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
+       <item row="5" column="0">
+        <widget class="QListView" name="listView">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>2</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Hide Pages:</string>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="0">
         <widget class="QFrame" name="frame">
          <property name="frameShape">
@@ -89,17 +106,32 @@
            <widget class="QComboBox" name="comboBox">
             <item>
              <property name="text">
-              <string>Reads vs Writes</string>
+              <string>Read/Access Ratio</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Hits vs Misses</string>
+              <string>Write/Access Ratio</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Exec/Access Ratio</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Hit/Access Ratio</string>
              </property>
             </item>
             <item>
              <property name="text">
               <string>Accesses</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Constant</string>
              </property>
             </item>
            </widget>
@@ -108,17 +140,32 @@
            <widget class="QComboBox" name="comboBox_2">
             <item>
              <property name="text">
-              <string>Reads vs Writes</string>
+              <string>Read/Access Ratio</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Hits vs Misses</string>
+              <string>Write/Access Ratio</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Exec/Access Ratio</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Hit/Access Ratio</string>
              </property>
             </item>
             <item>
              <property name="text">
               <string>Accesses</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Constant</string>
              </property>
             </item>
            </widget>
@@ -133,20 +180,20 @@
          </layout>
         </widget>
        </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Highlight Information:</string>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="0">
         <widget class="QTextBrowser" name="textBrowser">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>1</horstretch>
-           <verstretch>1</verstretch>
+           <verstretch>2</verstretch>
           </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Highlight Information:</string>
          </property>
         </widget>
        </item>
