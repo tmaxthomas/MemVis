@@ -24,6 +24,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QTabWidget>
+#include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
 
@@ -45,6 +46,8 @@ public:
     QLabel *label_2;
     QComboBox *comboBox_2;
     QWidget *tab_2;
+    QGridLayout *gridLayout;
+    QTextBrowser *textBrowser;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
 
@@ -135,6 +138,16 @@ public:
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QStringLiteral("tab_2"));
+        gridLayout = new QGridLayout(tab_2);
+        gridLayout->setSpacing(6);
+        gridLayout->setContentsMargins(11, 11, 11, 11);
+        gridLayout->setObjectName(QStringLiteral("gridLayout"));
+        gridLayout->setContentsMargins(0, 0, 0, 0);
+        textBrowser = new QTextBrowser(tab_2);
+        textBrowser->setObjectName(QStringLiteral("textBrowser"));
+
+        gridLayout->addWidget(textBrowser, 0, 0, 1, 1);
+
         tabWidget->addTab(tab_2, QString());
 
         gridLayout_2->addWidget(tabWidget, 0, 0, 1, 1);
@@ -170,8 +183,8 @@ public:
         comboBox_2->setItemText(1, QApplication::translate("MainWindow", "Hits vs Misses", nullptr));
         comboBox_2->setItemText(2, QApplication::translate("MainWindow", "Accesses", nullptr));
 
-        tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Tab 1", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Tab 2", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Settings", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Info", nullptr));
     } // retranslateUi
 
 };

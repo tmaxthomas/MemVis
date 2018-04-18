@@ -26,10 +26,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
+        memDrawing.cpp \
         ../vizFile/vizFile.cpp
 
 HEADERS += \
         mainwindow.h \
+        memDrawing.hpp \
         ../vizFile/io.hpp \
         ../vizFile/types.hpp \
         ../vizFile/vizFile.hpp
