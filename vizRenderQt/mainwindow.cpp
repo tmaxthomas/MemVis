@@ -126,7 +126,17 @@ void MainWindow::on_comboBox_2_currentIndexChanged(int index)
 }
 
 void MainWindow::hoverAt(QPointF pt) {
-	printf("%f %f\n", pt.x(), pt.y());
+    char buf[1024];
+    Address addr = GetAddressFromPoint(pt);
+    sprintf(buf, "address: %lx\n"
+                 "reads: %u\n"
+                 "writes: %u\n"
+                 "execs: %lu\n"
+                 "hits: %u\n"
+                 "misses: %u", );
+
+    info_str.append("address: ");
+    ui->textBrowser->setText(info_str);
 }
 
 void MainWindow::hoverEvent(QHoverEvent *e) {
