@@ -1,4 +1,7 @@
 
+#include <string.h>
+#include <algorithm>
+
 #include "vizFile.hpp"
 #include "io.hpp"
 
