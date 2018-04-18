@@ -140,7 +140,7 @@ void MainWindow::hoverAt(QPointF pt) {
 void MainWindow::hoverEvent(QHoverEvent *e) {
 	//Map to relative to the graphics view
 	QPoint gp = ui->graphicsView->mapFrom(this, e->pos());
-	gp -= QPoint(-ui->graphicsView->contentsMargins().left(), ui->graphicsView->contentsMargins().top());
+	gp -= QPoint(ui->graphicsView->contentsMargins().left(), ui->graphicsView->contentsMargins().top());
 	//And then to relative to the image in the scene... this can be used for memory addresses
 	QPointF lp = ui->graphicsView->mapToScene(gp);
 	lp /= mScale;
