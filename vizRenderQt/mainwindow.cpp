@@ -146,8 +146,8 @@ void MainWindow::hoverEvent(QHoverEvent *e) {
 	lp /= mScale;
 
 	if (lp.x() >= 0 && lp.y() >= 0 &&
-	    lp.x() <= ui->graphicsView->contentsRect().width() &&
-		lp.y() <= ui->graphicsView->contentsRect().height()) {
+	    lp.x() <= memImage.size().width() &&
+		lp.y() <= memImage.size().height()) {
 		hoverAt(lp);
 	}
 }
