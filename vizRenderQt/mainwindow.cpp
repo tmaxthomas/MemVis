@@ -127,15 +127,17 @@ void MainWindow::on_comboBox_2_currentIndexChanged(int index)
 
 void MainWindow::hoverAt(QPointF pt) {
     char buf[1024];
-    Address addr = GetAddressFromPoint(pt);
+    Address addr = drawer->getAddressForPoint(pt);
+    VizFile::ByteData data = mFile.bytes[addr];
     sprintf(buf, "address: %lx\n"
                  "reads: %u\n"
                  "writes: %u\n"
                  "execs: %lu\n"
                  "hits: %u\n"
-                 "misses: %u", );
+                 "misses: %u", addr, data.numReads, data.numWrites, data.numExecutes,
+                 data.numHits, data.numMisses);
 
-    info_str.append("address: ");
+    QString info_str(buf);
     ui->textBrowser->setText(info_str);
 }
 

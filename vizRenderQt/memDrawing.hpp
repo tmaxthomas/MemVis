@@ -26,6 +26,7 @@ public:
 	DrawSettings settings;
 
 	MemDrawing(VizFile *file, int width) : mFile(file), mSize(width, 0) {}
+    Address getAddressForPoint(QPointF point) const;
 
 public slots:
 	void draw();
@@ -39,8 +40,6 @@ private:
 	int getSegmentHeight(int segmentIndex) const;
 	QRect getSegmentBounds(int segmentIndex) const;
 	void getPointForAddress(int segmentIndex, Address addr, QPoint &point) const;
-
-	Address getAddressForPoint(QPointF point) const;
 
 	inline int getPixelWidth() const { return mSize.width() / mScale; }
 	inline int getPixelHeight() const { return mSize.height() / mScale; }
