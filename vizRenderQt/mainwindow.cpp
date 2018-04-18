@@ -32,21 +32,23 @@ void MainWindow::on_loadFileButton_clicked() {
 	}
 
 	printf("Loaded file with %lu bytes\n", mFile.bytes.size());
+	mScale = 1.0f;
 
 	//Don't ask rpi about this
 	qreal ratio = QApplication::screens().at(0)->devicePixelRatio();
 
 	int imgWidth = 1024;
-	mScale = 1.0f;
 
-	setGeometry(0, 0, imgWidth + 40, 640);
-
+	//Connect it to a background thread and update the screen when it finishes rendering
 	drawer = new MemDrawing(&mFile, imgWidth * ratio);
 	drawer->settings.hueAxis = (MemDrawing::DrawSettings::Axis)ui->comboBox->currentIndex();
-	drawer->settings.brightnessAxis = (MemDrawing::DrawSettings::Axis)ui->comboBox->currentIndex();
+	drawer->settings.brightnessAxis = (MemDrawing::DrawSettings::Axis)ui->comboBox_2->currentIndex();
 
 	drawThread = new QThread;
 	drawer->moveToThread(drawThread);
+	connect(drawer, SIGNAL(done(QImage)), this, SLOT(updateImage(QImage)));
+	connect(drawer, SIGNAL(cleanup), drawer, SLOT(updateImage(QImage)));
+	drawThread->start();
 
 	startDrawing();
 
@@ -58,10 +60,8 @@ void MainWindow::startDrawing() {
 	if (drawer == nullptr) {
 		return;
 	}
-	//Connect it to a background thread and update the screen when it finishes rendering
-	connect(drawThread, SIGNAL(started()), drawer, SLOT(draw()));
-	connect(drawer, SIGNAL(done(QImage)), this, SLOT(updateImage(QImage)));
-	drawThread->start();
+
+	QMetaObject::invokeMethod(drawer, "draw");
 }
 
 void MainWindow::updateImage(QImage image) {
