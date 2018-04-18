@@ -15,7 +15,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	drawer = nullptr;
 
 	ui->comboBox->setCurrentIndex(MemDrawing::DrawSettings::ReadsVsWrites);
-	ui->comboBox_2->setCurrentIndex(MemDrawing::DrawSettings::Accesses);
+    ui->comboBox_2->setCurrentIndex(MemDrawing::DrawSettings::Accesses);
+    QFont monofont("Monospace");
+    monofont.setStyleHint(QFont::TypeWriter);
+    ui->textBrowser->setFont(monofont);
 }
 
 MainWindow::~MainWindow() {
@@ -125,7 +128,7 @@ void MainWindow::hoverAt(QPointF pt) {
     char buf[1024];
     Address addr = drawer->getAddressForPoint(pt);
     VizFile::ByteData data = mFile.bytes[addr];
-    sprintf(buf, "address: %lx\n"
+    sprintf(buf, "address: 0x%lx\n"
                  "reads: %u\n"
                  "writes: %u\n"
                  "execs: %lu\n"
