@@ -130,7 +130,7 @@ void MemDrawing::getPointForAddress(int segmentIndex, Address addr, QPoint &poin
 }
 
 Address MemDrawing::getAddressForPoint(QPointF point) const {
-	QPoint pt = point.toPoint();
+	QPoint pt((int)floor(point.x()), (int)floor(point.y()));
 	//Step 1: what segment contains this point
 	for (int i = 0; i < mFile->segments.size(); i ++) {
 		if (!mDisplayedSegments[i])
