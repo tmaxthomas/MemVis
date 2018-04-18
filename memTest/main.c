@@ -288,7 +288,7 @@ int main(int argc, const char **argv) {
 		if (bits->height > height)
 			height = bits->height;
 	}
-	width = 2048;
+	width = 1024;
 	//Build memory accesses for str
 	unsigned char *memories = malloc(sizeof(unsigned char) * width * height);
 

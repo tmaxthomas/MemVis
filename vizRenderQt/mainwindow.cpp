@@ -34,13 +34,10 @@ void MainWindow::on_loadFileButton_clicked() {
 	printf("Loaded file with %lu bytes\n", mFile.bytes.size());
 	mScale = 1.0f;
 
-	//Don't ask rpi about this
-	qreal ratio = QApplication::screens().at(0)->devicePixelRatio();
-
 	int imgWidth = 1024;
 
 	//Connect it to a background thread and update the screen when it finishes rendering
-	drawer = new MemDrawing(&mFile, imgWidth * ratio);
+	drawer = new MemDrawing(&mFile, imgWidth);
 	drawer->settings.hueAxis = (MemDrawing::DrawSettings::Axis)ui->comboBox->currentIndex();
 	drawer->settings.brightnessAxis = (MemDrawing::DrawSettings::Axis)ui->comboBox_2->currentIndex();
 
@@ -71,13 +68,12 @@ void MainWindow::updateImage(QImage image) {
 
 void MainWindow::scaleImage(float scale) {
 	mScale = scale;
-	qreal ratio = QApplication::screens().at(0)->devicePixelRatio();
 
 	int newW = memImage.size().width();
 	int newH = memImage.size().height();
 
-	newW *= (scale / ratio);
-	newH *= (scale / ratio);
+	newW *= scale;
+	newH *= scale;
 
 	QRect rect = memImage.rect();
 	rect.setSize(QSize(newW, newH));
@@ -93,10 +89,9 @@ void MainWindow::scaleImage(float scale) {
 	scene = newScene;
 	scene->setSceneRect(rect);
 
-	QImage scaled = memImage.scaled(newW * ratio, newH * ratio);
+	QImage scaled = memImage.scaled(newW, newH);
 
 	QPixmap map = QPixmap::fromImage(scaled);
-	map.setDevicePixelRatio(ratio);
 	scene->addPixmap(map);
 }
 
