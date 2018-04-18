@@ -32,13 +32,39 @@ void MemDrawing::draw() {
 		for (int i = 0; i < mFile->segments[j].size; i ++) {
 			const auto &byte = mFile->segments[j].bytes[i];
 			if (byte.numAccesses() == 0) continue;
-			float value = (float)byte.numAccesses() / (float)maxAccesses;
-			value = sqrtf(sqrtf(value));
+            float accessRatio = (float)byte.numAccesses() / (float)maxAccesses;
+            accessRatio = sqrtf(sqrtf(accessRatio));
 			float readRatio = (float)byte.numReads / (float)byte.numAccesses();
-			//Convert readRatio to a hue
-			float hue = 0.0f /* red */ + (readRatio * 120.0f /* green */);
-			float saturation = 255.0f;
-			float brightness = value * 255.0f;
+            float hitRatio = (float)byte.numHits / (float)byte.numAccesses();
+            float hue, saturation, brightness;
+
+            //Hue switch (0.0f low bound, 120.0f high bound)
+            switch(settings.hueAxis) {
+            case MemDrawing::DrawSettings::Axis::Accesses:
+                hue = 0.0f + (accessRatio * 120.0f);
+                break;
+            case MemDrawing::DrawSettings::Axis::HitsVsMisses:
+                hue = 0.0f + (hitRatio * 120.0f);
+                break;
+            case MemDrawing::DrawSettings::Axis::ReadsVsWrites:
+                hue = 0.0f + (readRatio * 120.0f);
+                break;
+            }
+
+            saturation = 255.0f;
+
+            //Brightness switch
+            switch(settings.brightnessAxis) {
+            case MemDrawing::DrawSettings::Axis::Accesses:
+                 brightness = accessRatio * 255.0f;
+                break;
+            case MemDrawing::DrawSettings::Axis::HitsVsMisses:
+                brightness = hitRatio * 255.0f;
+                break;
+            case MemDrawing::DrawSettings::Axis::ReadsVsWrites:
+                brightness = readRatio * 255.0f;
+                break;
+            }
 
 			QColor color;
 			color.setHsv(hue, saturation, brightness);
