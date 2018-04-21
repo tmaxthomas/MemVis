@@ -1,5 +1,6 @@
 #include "memDrawing.hpp"
 #include <math.h>
+#include <assert.h>
 
 void MemDrawing::draw() {
 	//Clear locations before we draw so they recalculate
@@ -100,6 +101,7 @@ void MemDrawing::draw() {
 			//Error checking! This should never happen
 			if (point.y() >= h) {
 				printf("Too far!\n");
+				assert(false);
 				goto done;
 			}
 			img.setPixelColor(point, color);
@@ -129,7 +131,7 @@ int MemDrawing::getSegmentYStart(int segmentIndex) const {
 	int closestHeight = getSegmentHeight(segmentIndex - 1);
 	int closestEnd = getSegmentYStart(segmentIndex - 1);
 
-	int y = mDisplayedSegments[segmentIndex] ? closestEnd + closestHeight + 4 : closestEnd;
+	int y = closestEnd + closestHeight + (mDisplayedSegments[segmentIndex] ? 4 : 0);
 	mSegmentLocations[segmentIndex] = y;
 
 	return y;

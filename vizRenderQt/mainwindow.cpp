@@ -7,6 +7,7 @@
 #include <QtGui>
 #include <QtWidgets>
 #include <QWizard>
+#include <utility>
 #include "memDrawing.hpp"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -111,7 +112,7 @@ void MainWindow::startDrawing() {
 
 void MainWindow::updateImage(QImage image) {
 	ui->progressBar->setVisible(false);
-	memImage = image;
+	memImage = std::move(image);
 	scaleImage(1.0f);
 }
 
