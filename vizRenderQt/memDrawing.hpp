@@ -9,7 +9,6 @@ class MemDrawing : public QObject {
 	Q_OBJECT
 	VizFile *mFile;
 	QSize mSize;
-	int mScale;
 	std::vector<bool> mDisplayedSegments;
 	mutable std::vector<int> mSegmentLocations; 
 
@@ -55,8 +54,8 @@ public:
 	void getPointForAddress(int segmentIndex, Address addr, QPoint &point) const;
 	Address getAddressForPoint(QPointF point) const;
 
-	inline int getPixelWidth() const { return mSize.width() / mScale; }
-	inline int getPixelHeight() const { return mSize.height() / mScale; }
+	inline int getPixelWidth() const { return mSize.width(); }
+	inline int getPixelHeight() const { return mSize.height(); }
 
 };
 
