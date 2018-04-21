@@ -173,12 +173,12 @@ void MainWindow::hoverAt(QPointF pt) {
     char buf[1024];
     Address addr = drawer->getAddressForPoint(pt);
     VizFile::ByteData data = mFile.bytes[addr];
-    sprintf(buf, "address: 0x%lx\n"
-                 "reads: %u\n"
-                 "writes: %u\n"
-                 "execs: %lu\n"
-                 "hits: %u\n"
-                 "misses: %u", addr, data.numReads, data.numWrites, data.numExecutes,
+    sprintf(buf, "address: 0x%llx\n"
+                 "reads: %llu\n"
+                 "writes: %llu\n"
+                 "execs: %llu\n"
+                 "hits: %llu\n"
+                 "misses: %llu", addr, data.numReads, data.numWrites, data.numExecutes,
                  data.numHits, data.numMisses);
 
     QString info_str(buf);
