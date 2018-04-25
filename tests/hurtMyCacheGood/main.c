@@ -5,7 +5,7 @@ int main(int argc, const char **argv) {
 	int blockSize = 64;
 	char *causingProblems = malloc(sizeof(char) * blockSize * numBlocks);
 
-	int a = 0;
+    int a = 0;
 
 	for (int j = 0; j < 10; j++) {
 		for (int k = 0; k < 0x2000; k++) {

@@ -17,7 +17,7 @@ fi
 
 DIR=$(pwd)
 
-if [ -f "$DRROOT/bin64" ] ; then
+if [ -d "$DRROOT/bin64" ] ; then
 	cd "$DRROOT/bin64"
 else
 	cd "$DRROOT/bin32"
@@ -28,4 +28,5 @@ if [ "${1:0:1}" = "/" ] ; then
 else
     ./drrun -t drcachetrace -- "${DIR}/$1"
 fi
+cd ${DIR}
 mv /tmp/tmp.vzf $2
