@@ -5,7 +5,7 @@
 
 cache_trace_stats_t::cache_trace_stats_t(const std::string &miss_file, bool warmup_enabled) : 
         caching_device_stats_t(miss_file, warmup_enabled) {
-    fd = fopen("/tmp/tmp.vzf", "wb");
+    fd = fopen("/tmp/tmp.vzf", "a");
     char buf[8];
     strncpy(buf, "vzfh", 4);
     *(uint32_t *) (buf + 4) = 1;
