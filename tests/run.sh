@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 # NOTE: Paths beginning with '/' are assumed to be absolute paths from root
 # Prepend with '.' to use a local path
 
@@ -17,10 +17,15 @@ fi
 
 DIR=$(pwd)
 
-cd $DRROOT/bin*
-if [ "${1:0:1}" = "/" ] ; then
-    drrun -t drcachetrace -- $1
+if [ -f "$DRROOT/bin64" ] ; then
+	cd "$DRROOT/bin64"
 else
-    drrun -t drcachetrace -- "${DIR}/$1"
+	cd "$DRROOT/bin32"
+fi
+
+if [ "${1:0:1}" = "/" ] ; then
+    ./drrun -t drcachetrace -- $1
+else
+    ./drrun -t drcachetrace -- "${DIR}/$1"
 fi
 mv /tmp/tmp.vzf $2
