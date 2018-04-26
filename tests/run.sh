@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 # NOTE: Paths beginning with '/' are assumed to be absolute paths from root
 # Prepend with '.' to use a local path
 
@@ -11,7 +11,7 @@ fi
 if [ "X$DRROOT" = "X" ] ; then
 	echo "Need to specify DRROOT (contains bin32/bin64 directory)."
 	echo "Run as:"
-	echo "  DRROOT=/path/to/dynamorio $0 $*"
+	echo "DRROOT=/path/to/dynamorio $0 $*"
 	exit 1
 fi
 
