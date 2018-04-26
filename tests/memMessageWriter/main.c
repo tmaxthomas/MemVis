@@ -215,12 +215,11 @@ static struct Bits chars[256] = {
 		"..  "
 		".   "
 		".   "},
-	{3, 5,
-		"..."
+	{3, 4,
+		" .."
 		".  "
-		"..."
 		"  ."
-		"..."},
+		".. "},
 	{4, 5,
 		" .  "
 		"...."
@@ -276,7 +275,7 @@ static struct Bits chars[256] = {
 };
 
 int main(int argc, const char **argv) {
-	static const char *str = "hope the demo works";
+	static const char *str = "         hope the demo worked";
 	static int length = 38;
 
 	//Find length of str
