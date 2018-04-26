@@ -27,14 +27,14 @@ if (APPLE) # OSX needs 32-bit procs for dynamorio
 	set_target_properties(MemMessageWriter PROPERTIES COMPILE_FLAGS "-m32 -arch i386" LINK_FLAGS "-m32 -arch i386")
 endif ()
 
-set (CACHETRASH_SRC
-        tests/cacheTrash/main.c
+set (RANDOMDATAACCESS_SRC
+        tests/randomDataAccess/main.c
 )
 
-add_executable(CacheTrash ${CACHETRASH_SRC})
+add_executable(RandomDataAccess ${RANDOMDATAACCESS_SRC})
 if (APPLE) # OSX needs 32-bit procs for dynamorio
-	set_target_properties(CacheTrash PROPERTIES CMAKE_OSX_ARCHITECTURES "i386" CMAKE_XCODE_ATTRIBUTE_ARCHS "\$(ARCHS_STANDARD_32_BIT)")
-	set_target_properties(CacheTrash PROPERTIES COMPILE_FLAGS "-m32 -arch i386" LINK_FLAGS "-m32 -arch i386")
+	set_target_properties(RandomDataAccess PROPERTIES CMAKE_OSX_ARCHITECTURES "i386" CMAKE_XCODE_ATTRIBUTE_ARCHS "\$(ARCHS_STANDARD_32_BIT)")
+	set_target_properties(RandomDataAccess PROPERTIES COMPILE_FLAGS "-m32 -arch i386" LINK_FLAGS "-m32 -arch i386")
 endif ()
 
 set (HMCG_SRC
